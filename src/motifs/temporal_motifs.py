@@ -90,7 +90,7 @@ def motif_operation(mid):
     parent_node = {}
 
     motif_frontiers_count = [{} for i in range(500)]
-    motif_adopters_count = [{} for i in range(500)]
+    motif_non_frontiers_count = [{} for i in range(500)]
     motif_frontiers_gt_count = [{} for i in range(500)]
     return_list = []
     print("Cascade of mid: ", mid)
@@ -138,7 +138,7 @@ def motif_operation(mid):
                 cascade_vertices = cascade_graph.new_vertex_property("string")
                 frontier_vertices = []
                 frontier_gt_vertices = []
-                new_frontier_vertices = []
+                non_frontier_vertices = []
 
                 for (src, tgt) in edge_list:
                     if src == tgt:
@@ -163,14 +163,22 @@ def motif_operation(mid):
                     time_diff = (parent_node_time[tgt] - parent_node_time[src])/60
 
                     if time_diff >= 0:
-                        if time_diff < 30*window: # lambda
+                        if time_diff < 5*window: # lambda
                             if str(src) in diff_dict_07:
-                                if str(tgt) in diff_dict_07[str(src)]:
-                                    frontier_vertices.append(tgt)
-                                else:
-                                    frontier_gt_vertices.append(tgt)
+                                flag_frontier = 0
+                                for nbr, tid in diff_dict_07[str(src)]:
+                                    if str(tgt) == nbr:
+                                        frontier_vertices.append(tgt)
+                                        flag_frontier = 1
+                                        break
+                                if flag_frontier == 0:
+                                    non_frontier_vertices.append(tgt)
                         else:
-                            new_frontier_vertices.append(tgt)
+                            if str(src) in diff_dict_07:
+                                for nbr, tid in diff_dict_07[str(src)]:
+                                    if str(tgt) == nbr:
+                                        frontier_gt_vertices.append(tgt)
+                                        break
 
                     if cascade_graph.edge(v1, v2):
                         continue
@@ -188,7 +196,7 @@ def motif_operation(mid):
                     gt.clustering.motifs(cascade_graph, 5, return_maps=True)
 
                 frontier_motifs = {}
-                adopter_motifs = {}
+                non_frontier_motifs = {}
                 frontiers_gt_motifs = {}
                 for idx_g in range(len(motifs_graph_filtered)):
                     map = vertex_maps_filtered[idx_g]
@@ -203,14 +211,15 @@ def motif_operation(mid):
                         flag_frontier_gt = 0
                         cnt_maps += 1
                         for n in list(idx.a):
-                            if n in frontier_vertices:
-                                cnt_frontier_motifs += 1
+                            user = cascade_vertices[n]
+                            if user in frontier_vertices:
                                 flag_frontier = 1
-                                # print(cnt_frontier_motifs)
                                 break
-                            if n in frontier_gt_vertices:
+                            if user in frontier_gt_vertices:
                                 flag_frontier_gt = 1
-                        if flag_frontier == 0 and flag_frontier_gt == 1:
+                        if flag_frontier == 1:
+                            cnt_frontier_motifs += 1
+                        elif flag_frontier_gt == 1:
                             cnt_frontiers_gt_motifs += 1
                         else:
                             cnt_adopter_motifs += 1
@@ -219,15 +228,16 @@ def motif_operation(mid):
                             motifs_count_filtered[ind] = 2001
                             break
                     ind += 1
+                    # print(cnt_intervals, 'Motifs: ', motifs_count_filtered[idx_g], cnt_frontier_motifs, cnt_frontiers_gt_motifs, cnt_adopter_motifs)
                     frontier_motifs[idx_g] = cnt_frontier_motifs
                     frontiers_gt_motifs[idx_g] = cnt_frontiers_gt_motifs
-                    adopter_motifs[idx_g] = cnt_adopter_motifs
+                    non_frontier_motifs[idx_g] = cnt_adopter_motifs
 
                 counter_lock = threading.Lock()
                 with counter_lock:
                     for idx in range(len(motifs_graph_filtered)):
                         motif_frontiers_count[cnt_intervals][motifs_graph_filtered[idx]] = frontier_motifs[idx]
-                        motif_adopters_count[cnt_intervals][motifs_graph_filtered[idx]] = adopter_motifs[idx]
+                        motif_non_frontiers_count[cnt_intervals][motifs_graph_filtered[idx]] = non_frontier_motifs[idx]
                         motif_frontiers_gt_count[cnt_intervals][motifs_graph_filtered[idx]] = frontiers_gt_motifs[idx]
 
                 # print(motif_patterns_cascade_list)
@@ -238,20 +248,22 @@ def motif_operation(mid):
                 if stop_steep_flag == 1:
                     # print("Inside steep: ", len(motif_patterns_cascade_list))
                     motif_frontiers_steep = motif_frontiers_count[:cnt_intervals+1]
-                    motif_adopters_steep = motif_adopters_count[:cnt_intervals + 1]
+                    motif_non_frontiers_steep = motif_non_frontiers_count[:cnt_intervals + 1]
                     motif_frontiers_gt_steep = motif_frontiers_gt_count[:cnt_intervals + 1]
 
                     stop_steep_flag = 2
+                    nodes_interval = [[] for i in range(500)]
+                    weighted_edges = [[] for i in range(500)]
                     # cnt_intervals = 0
                     # motif_frontiers_count = [{} for i in range(500)]
                     # motif_frontiers_gt_count = [{} for i in range(500)]
 
                 if stop_inhib_flag == 1:
                     motif_frontiers_inhib = motif_frontiers_count[:cnt_intervals + 1]
-                    motif_adopters_inhib = motif_adopters_count[:cnt_intervals + 1]
+                    motif_non_frontiers_inhib = motif_non_frontiers_count[:cnt_intervals + 1]
                     motif_frontiers_gt_inhib = motif_frontiers_gt_count[:cnt_intervals + 1]
-                    return_list = [motif_frontiers_steep, motif_adopters_steep, motif_frontiers_gt_steep,
-                                   motif_frontiers_inhib, motif_adopters_inhib, motif_frontiers_gt_inhib]
+                    return_list = [motif_frontiers_steep, motif_non_frontiers_steep, motif_frontiers_gt_steep,
+                                   motif_frontiers_inhib, motif_non_frontiers_inhib, motif_frontiers_gt_inhib]
                     return return_list
 
             cnt_intervals += 1
@@ -307,8 +319,12 @@ if __name__ == '__main__':
 
     number_intervals = 500
 
-    motif_patterns_global_list = [{} for i in range(number_intervals)]
-    motif_patterns_global_list_inhib = [{} for i in range(number_intervals)]
+    motif_patterns_global_list_1 = [{} for i in range(number_intervals)]
+    motif_patterns_global_list_2 = [{} for i in range(number_intervals)]
+    motif_patterns_global_list_3 = [{} for i in range(number_intervals)]
+    motif_patterns_global_list_1_inhib = [{} for i in range(number_intervals)]
+    motif_patterns_global_list_2_inhib = [{} for i in range(number_intervals)]
+    motif_patterns_global_list_3_inhib = [{} for i in range(number_intervals)]
     frontiers_count_global_list = [{} for i in range(number_intervals)]
     frontiers_count_global_list_inhib = [{} for i in range(number_intervals)]
     frontiers_gt_count_global_list = [{} for i in range(number_intervals)]
@@ -332,7 +348,7 @@ if __name__ == '__main__':
     for mid in steep_inhib_times:
         tasks.append( (mid) )
         cnt_mids += 1
-        # if cnt_mids > :
+        # if cnt_mids > 5:
         #     break
 
     results = pool.map_async(motif_operation, tasks)
@@ -343,7 +359,7 @@ if __name__ == '__main__':
 
     count_invalid = 0
     for idx in range(len(motif_data)):
-        try:
+
             results_list = motif_data[idx]
             motif_frontiers_steep = results_list[0]
             motif_adopters_steep = results_list[1]
@@ -361,7 +377,7 @@ if __name__ == '__main__':
                 # print(motif_patterns_steep[interval])
                 # We store the intrevals data in reverse order from inhib interval to the first interval
                 for m in motif_frontiers_steep[interval]:
-                    pat_global = checkIsomorphism(motif_patterns_global_list[int_prev], m)
+                    pat_global = checkIsomorphism(motif_patterns_global_list_1[int_prev], m)
                     pat = checkIsomorphism(motif_patterns_list, m)
                     if pat == False:
                         motif_patterns_list.append(m)
@@ -372,24 +388,23 @@ if __name__ == '__main__':
 
                     if pat_global == False:
                         frontiers_count_global_list[int_prev][m] = []
-                        motif_patterns_global_list[int_prev][m] = motif_frontiers_steep[interval][
+                        motif_patterns_global_list_1[int_prev][m] = motif_frontiers_steep[interval][
                             m]
                         frontiers_count_global_list[int_prev][m].append(
                             motif_frontiers_steep[interval][m])
                     else:
-                        motif_patterns_global_list[int_prev][pat_global] += \
+                        motif_patterns_global_list_1[int_prev][pat_global] += \
                             motif_frontiers_steep[interval][m]
                         frontiers_count_global_list[int_prev][pat_global].append(
                             motif_frontiers_steep[interval][m])
 
-            motif_patterns_global_list = [{} for i in range(number_intervals)]
             for int_prev in range(1, cnt_interval_steep + 1):
                 interval = cnt_interval_steep - int_prev
 
                 # print(motif_patterns_steep[interval])
                 # We store the intrevals data in reverse order from inhib interval to the first interval
                 for m in motif_frontiers_gt_steep[interval]:
-                    pat_global = checkIsomorphism(motif_patterns_global_list[int_prev], m)
+                    pat_global = checkIsomorphism(motif_patterns_global_list_2[int_prev], m)
                     pat = checkIsomorphism(motif_patterns_list, m)
                     if pat == False:
                         motif_patterns_list.append(m)
@@ -400,24 +415,23 @@ if __name__ == '__main__':
 
                     if pat_global == False:
                         frontiers_gt_count_global_list[int_prev][m] = []
-                        motif_patterns_global_list[int_prev][m] = motif_frontiers_gt_steep[interval][
+                        motif_patterns_global_list_2[int_prev][m] = motif_frontiers_gt_steep[interval][
                             m]
                         frontiers_gt_count_global_list[int_prev][m].append(
                             motif_frontiers_gt_steep[interval][m])
                     else:
-                        motif_patterns_global_list[int_prev][pat_global] += \
+                        motif_patterns_global_list_2[int_prev][pat_global] += \
                             motif_frontiers_gt_steep[interval][m]
                         frontiers_gt_count_global_list[int_prev][pat_global].append(
                             motif_frontiers_gt_steep[interval][m])
 
-            motif_patterns_global_list = [{} for i in range(number_intervals)]
             for int_prev in range(1, cnt_interval_steep + 1):
                 interval = cnt_interval_steep - int_prev
 
                 # print(motif_patterns_steep[interval])
                 # We store the intrevals data in reverse order from inhib interval to the first interval
                 for m in motif_adopters_steep[interval]:
-                    pat_global = checkIsomorphism(motif_patterns_global_list[int_prev], m)
+                    pat_global = checkIsomorphism(motif_patterns_global_list_3[int_prev], m)
                     pat = checkIsomorphism(motif_patterns_list, m)
                     if pat == False:
                         motif_patterns_list.append(m)
@@ -428,12 +442,12 @@ if __name__ == '__main__':
 
                     if pat_global == False:
                         adopters_count_global_list[int_prev][m] = []
-                        motif_patterns_global_list[int_prev][m] = motif_adopters_steep[interval][
+                        motif_patterns_global_list_3[int_prev][m] = motif_adopters_steep[interval][
                             m]
                         adopters_count_global_list[int_prev][m].append(
                             motif_adopters_steep[interval][m])
                     else:
-                        motif_patterns_global_list[int_prev][pat_global] += \
+                        motif_patterns_global_list_3[int_prev][pat_global] += \
                             motif_adopters_steep[interval][m]
                         adopters_count_global_list[int_prev][pat_global].append(
                             motif_adopters_steep[interval][m])
@@ -445,7 +459,7 @@ if __name__ == '__main__':
                 # print(motif_patterns_steep[interval])
                 # We store the intrevals data in reverse order from inhib interval to the first interval
                 for m in motif_frontiers_inhib[interval]:
-                    pat_global = checkIsomorphism(motif_patterns_global_list_inhib[int_prev], m)
+                    pat_global = checkIsomorphism(motif_patterns_global_list_1_inhib[int_prev], m)
                     pat = checkIsomorphism(motif_patterns_list, m)
                     if pat == False:
                         motif_patterns_list.append(m)
@@ -456,24 +470,23 @@ if __name__ == '__main__':
 
                     if pat_global == False:
                         frontiers_count_global_list_inhib[int_prev][m] = []
-                        motif_patterns_global_list_inhib[int_prev][m] = motif_frontiers_inhib[interval][
+                        motif_patterns_global_list_1_inhib[int_prev][m] = motif_frontiers_inhib[interval][
                             m]
                         frontiers_count_global_list_inhib[int_prev][m].append(
                             motif_frontiers_inhib[interval][m])
                     else:
-                        motif_patterns_global_list_inhib[int_prev][pat_global] += \
+                        motif_patterns_global_list_1_inhib[int_prev][pat_global] += \
                             motif_frontiers_inhib[interval][m]
                         frontiers_count_global_list_inhib[int_prev][pat_global].append(
                             motif_frontiers_inhib[interval][m])
 
-            motif_patterns_global_list_inhib = [{} for i in range(number_intervals)]
             for int_prev in range(1, cnt_interval_inhib + 1):
                 interval = cnt_interval_inhib - int_prev
 
                 # print(motif_patterns_steep[interval])
                 # We store the intrevals data in reverse order from inhib interval to the first interval
                 for m in motif_frontiers_gt_inhib[interval]:
-                    pat_global = checkIsomorphism(motif_patterns_global_list_inhib[int_prev], m)
+                    pat_global = checkIsomorphism(motif_patterns_global_list_2_inhib[int_prev], m)
                     pat = checkIsomorphism(motif_patterns_list, m)
                     if pat == False:
                         motif_patterns_list.append(m)
@@ -484,24 +497,23 @@ if __name__ == '__main__':
 
                     if pat_global == False:
                         frontiers_gt_count_global_list_inhib[int_prev][m] = []
-                        motif_patterns_global_list_inhib[int_prev][m] = motif_frontiers_gt_inhib[interval][
+                        motif_patterns_global_list_2_inhib[int_prev][m] = motif_frontiers_gt_inhib[interval][
                             m]
                         frontiers_gt_count_global_list_inhib[int_prev][m].append(
                             motif_frontiers_gt_inhib[interval][m])
                     else:
-                        motif_patterns_global_list_inhib[int_prev][pat_global] += \
+                        motif_patterns_global_list_2_inhib[int_prev][pat_global] += \
                             motif_frontiers_gt_inhib[interval][m]
                         frontiers_gt_count_global_list_inhib[int_prev][pat_global].append(
                             motif_frontiers_gt_inhib[interval][m])
 
-            motif_patterns_global_list_inhib = [{} for i in range(number_intervals)]
             for int_prev in range(1, cnt_interval_inhib + 1):
                 interval = cnt_interval_inhib - int_prev
 
                 # print(motif_patterns_steep[interval])
                 # We store the intrevals data in reverse order from inhib interval to the first interval
                 for m in motif_adopters_inhib[interval]:
-                    pat_global = checkIsomorphism(motif_patterns_global_list_inhib[int_prev], m)
+                    pat_global = checkIsomorphism(motif_patterns_global_list_3_inhib[int_prev], m)
                     pat = checkIsomorphism(motif_patterns_list, m)
                     if pat == False:
                         motif_patterns_list.append(m)
@@ -512,17 +524,17 @@ if __name__ == '__main__':
 
                     if pat_global == False:
                         adopters_count_global_list_inhib[int_prev][m] = []
-                        motif_patterns_global_list_inhib[int_prev][m] = motif_adopters_inhib[interval][
+                        motif_patterns_global_list_3_inhib[int_prev][m] = motif_adopters_inhib[interval][
                             m]
                         adopters_count_global_list_inhib[int_prev][m].append(
                             motif_adopters_inhib[interval][m])
                     else:
-                        motif_patterns_global_list_inhib[int_prev][pat_global] += \
+                        motif_patterns_global_list_3_inhib[int_prev][pat_global] += \
                             motif_adopters_inhib[interval][m]
                         adopters_count_global_list_inhib[int_prev][pat_global].append(
                             motif_adopters_inhib[interval][m])
-        except:
-            count_invalid += 1
+        # except:
+        #     count_invalid += 1
 
     print('Invalid: ', count_invalid)
 
@@ -530,7 +542,7 @@ if __name__ == '__main__':
     count_motifs_interval_dict = {}
     for int_prev in range(100):
         try:
-            for m in motif_patterns_global_list[int_prev]:
+            for m in motif_patterns_global_list_1[int_prev]:
                 output_dir = 'motifs_patterns/5/interval_' + str(int_prev)
                 if not os.path.exists(output_dir):
                     os.makedirs(output_dir)
