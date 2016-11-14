@@ -5,14 +5,13 @@ import math
 import statistics as st
 import statistics
 from math import  *
-import seaborn
 
 import datetime
 import pickle
 import numpy as np
 import matplotlib.image as image
 
-path = 'frontier_motifs_count/5/adopters/inhib'
+path = 'motifs_count/5/08/inhib'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -20,7 +19,8 @@ cnt_2 = 0
 motif_count_interval = {}
 titles = []
 
-number_intervals = len([name for name in os.listdir(path)])
+# number_intervals = len([name for name in os.listdir(path)])
+number_intervals = 21
 for filename in os.listdir(path):
     # print("Reading file...", filename)
     full_path = path + '/' + filename
@@ -33,11 +33,11 @@ for filename in os.listdir(path):
 
     int_reverse = number_intervals - interval
 
-    if interval >= 51:
+    if interval >= 21:
         continue
     for m in motif_count:
         if m not in motif_count_interval:
-            motif_count_interval[m] = [[] for i in range(50)]
+            motif_count_interval[m] = [[] for i in range(21)]
         list_filtered = []
         for v in motif_count[m]:
             if v == inf:
@@ -46,7 +46,7 @@ for filename in os.listdir(path):
                 continue
             # v = math.log(v)
             list_filtered.append(v)
-        motif_count_interval[m][int_reverse-50].extend(list_filtered)
+        motif_count_interval[m][int_reverse-20].extend(list_filtered)
     # titles.append('I' + str(interval))
 
 print('Saving plots...')
@@ -73,8 +73,6 @@ for m in motif_count_interval:
             continue
         max_value_interval.append(max(motif_count_interval[m][idx]))
 
-    if max_value_interval == []:
-        continue
     max_val = max(max_value_interval)
     for idx in range(len(motif_count_interval[m])-1):
         if len(motif_count_interval[m][idx]) == 0:
@@ -98,7 +96,7 @@ for m in motif_count_interval:
         # change outline color
         box.set(color='#7570b3', linewidth=2)
         # change fill color
-        box.set(facecolor='#1b9e77')
+        # box.set(facecolor='#1b9e77')
 
     ## change color and linewidth of the whiskers
     for whisker in bp['whiskers']:
@@ -121,21 +119,22 @@ for m in motif_count_interval:
     third_quartile = [item.get_ydata()[0] for item in bp['whiskers']]
     third_quartile = max(third_quartile)
 
-    dir_save = 'motif_count_plots/v3/adopters/inhib'
+    dir_save = 'motif_count_plots/v3/5/inhib'
     if not os.path.exists(dir_save):
         os.makedirs(dir_save)
     file_save = dir_save + '/' + 'mc_inhib_' + str(m) + '.png'
     plt.ylim([0, third_quartile + math.pow(10, int(math.log10(third_quartile)))])
-    # plt.ylim([0, limits_y_steep[m]])
-    major_ticks = np.arange(0, 51, 5)
+    plt.ylim([0, limits_y_steep[m]])
+    major_ticks = np.arange(0, number_intervals+1, 5)
     plt.xticks(major_ticks)
     plt.tick_params('y', labelsize=15)
     plt.tick_params('x', labelsize=15)
     plt.xlabel(r'\textbf{Intervals before inhib region}', fontsize=15)
     plt.ylabel(r'\textbf{Normalized motif counts}', fontsize=15)
-    # limits_y_steep[m] = third_quartile + 0.2*math.pow(10, int(math.log10(third_quartile)))
+    limits_y_steep[m] = third_quartile + 0.2*math.pow(10, int(math.log10(third_quartile)))
     # plt.ylim([0, 0.3])
+    plt.grid(True)
     plt.savefig(file_save)
     plt.close()
 
-# print(limits_y_steep)
+print(limits_y_steep)
