@@ -12,7 +12,7 @@ import pickle
 import numpy as np
 import matplotlib.image as image
 
-path = 'motifs_weights/generative/5/08/steep'
+path = '../data/motifs/motifs_weights/generative/5/08/steep'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -33,11 +33,11 @@ for filename in os.listdir(path):
 
     int_reverse = number_intervals - interval
 
-    if interval >= 51:
+    if interval >= 21:
         continue
     for m in motif_count:
         if m not in motif_count_interval:
-            motif_count_interval[m] = [[] for i in range(50)]
+            motif_count_interval[m] = [[] for i in range(20)]
         list_filtered = []
         for v in motif_count[m]:
             if v == inf:
@@ -46,7 +46,7 @@ for filename in os.listdir(path):
                 continue
             # v = math.log(v)
             list_filtered.append(log(v))
-        motif_count_interval[m][int_reverse-50].extend(list_filtered)
+        motif_count_interval[m][int_reverse-20].extend(list_filtered)
     # titles.append('I' + str(interval))
 
 print('Saving plots...')
@@ -126,12 +126,12 @@ for m in motif_count_interval:
     file_save = dir_save + '/' + 'mw_steep_' + str(m) + '.png'
     plt.ylim([0, third_quartile + 0.2*math.pow(10, int(math.log10(third_quartile)))])
     plt.ylim([0, limits_y_steep[m]])
-    major_ticks = np.arange(0, 51, 5)
-    plt.xticks(major_ticks)
-    plt.tick_params('y', labelsize=15)
-    plt.tick_params('x', labelsize=15)
-    plt.xlabel(r'\textbf{Intervals before steep region}', fontsize=15)
-    plt.ylabel(r'\textbf{Normalized motif weights}', fontsize=15)
+    # major_ticks = np.arange(0, 21, 5)
+    # plt.xticks(major_ticks)
+    plt.tick_params('y', labelsize=25)
+    plt.tick_params('x', labelsize=25)
+    plt.xlabel(r'\textbf{Intervals before steep region}', fontsize=25)
+    plt.ylabel(r'\textbf{Normalized motif weights}', fontsize=25)
     # limits_y_steep[m] = third_quartile + 0.2*math.pow(10, int(math.log10(third_quartile)))
     # plt.ylim([0, y])
     plt.savefig(file_save)
