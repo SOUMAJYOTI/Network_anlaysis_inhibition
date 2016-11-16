@@ -12,7 +12,7 @@ import pickle
 import numpy as np
 import matplotlib.image as image
 
-path = 'frontier_motifs_count/5/adopters/inhib'
+path = '../data/frontier_motifs_count/5/adopters/inhib'
 cnt_rec = 0
 
 cnt_1 = 0

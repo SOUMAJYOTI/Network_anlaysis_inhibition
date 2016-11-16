@@ -29,7 +29,7 @@ for filename in os.listdir(path):
     int_reverse = number_intervals - interval
 
     # print(int_reverse)
-    if int_reverse < 0:
+    if interval <= 0 or interval > 21:
         continue
     for m in motif_count:
         if m not in motif_count_interval:
