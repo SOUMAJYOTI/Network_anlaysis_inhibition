@@ -11,13 +11,12 @@ import math
 import statistics as st
 import statistics
 from math import  *
-import seaborn
-
 import datetime
 import pickle
+from pylab import *
 
-number_intervals = 20
-path = '11_05/entropy/entropy_velocity/v1/inhib'
+number_intervals = 21
+path = '../data/centralities/11_14/deg/deg_values/v1/inhib'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -40,7 +39,7 @@ for filename in os.listdir(path):
         cnt = 0
         for mid in measure_list:
             measure, num_edges = measure_list[mid]
-            print(measure)
+            # print(measure)
             if measure == []:
                 continue
             if measure == NAN:
@@ -55,7 +54,7 @@ for filename in os.listdir(path):
 #data_to_plot = data_to_plot.reverse()
 
 
-fig = plt.figure(1, figsize=(10, 6))
+fig = plt.figure(1, figsize=(10, 8))
 
 # Create an axes instance
 ax = fig.add_subplot(111)
@@ -65,23 +64,23 @@ bp = ax.boxplot(data_to_plot, patch_artist=True)
 
 for box in bp['boxes']:
     # change outline color
-    box.set(color='#7570b3', linewidth=2)
+    box.set(color='#0000FF', linewidth=2)
     # change fill color
-    box.set(facecolor='#1b9e77')
+    box.set(facecolor='#FFFFFF')
 
-## change color and linewidth of the whiskers
-for whisker in bp['whiskers']:
-    whisker.set(color='#7570b3', linewidth=2)
+    ## change color and linewidth of the whiskers
+    # for whisker in bp['whiskers']:
+    #     whisker.set(color='#7570b3', linewidth=2)
 
-## change color and linewidth of the caps
-for cap in bp['caps']:
-    cap.set(color='#7570b3', linewidth=2)
+    ## change color and linewidth of the caps
+    # for cap in bp['caps']:
+    #     cap.set(color='#7570b3', linewidth=2)
 
-## change color and linewidth of the medians
+    ## change color and linewidth of the medians
 for median in bp['medians']:
-    median.set(color='#b2df8a', linewidth=2)
+    median.set(color='#FF0000', linewidth=4)
 
-# change the style of fliers and their fill
+    ## change the style of fliers and their fill
 for flier in bp['fliers']:
     flier.set(marker='o', color='#e7298a', alpha=0.5)
 
@@ -91,13 +90,21 @@ third_quartile = max(third_quartile)
 first_quartile = [item.get_ydata()[1] for item in bp['whiskers']]
 first_quartile = max(first_quartile)
 
-ax.set_title('Entropy', fontsize=55)
+plt.rc('text', usetex=True)
+plt.rc('font', family='serif')
+rcParams['text.latex.preamble'] = [r'\usepackage{sfmath} \boldmath']
+
+# ax.set_title(r'\textbf{Entropy}', fontsize=25)
 #ax.set_title(r'\textbf{Shortest path - Newly appeared nodes by interval}', fontsize=55)
-ax.set_xlabel('Intervals before steep region', fontsize=50)
-plt.ylim([-third_quartile - 0.5*math.pow(10, int(math.log10(third_quartile))),
-          third_quartile + math.pow(10, int(math.log10(third_quartile)))])
+ax.set_xlabel(r'\textbf{Intervals before inhibition region}', fontsize=25)
+ax.set_ylabel(r'\textbf{Nodal Degree}', fontsize=25)
+
+# plt.ylim([-third_quartile - 0.5*math.pow(10, int(math.log10(third_quartile))),
+#           third_quartile + math.pow(10, int(math.log10(third_quartile)))])
 # plt.ylim([0, third_quartile + math.pow(10, int(math.log10(third_quartile)))])
-# plt.ylim([-0.01, 0.1])
-plt.tick_params('y', labelsize=50)
+plt.ylim([1, 3])
+plt.tick_params('y', labelsize=20)
+plt.tick_params('x', labelsize=20)
+plt.grid(True)
 # ax.set_xticklabels(titles)
 plt.show()
