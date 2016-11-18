@@ -47,8 +47,9 @@ for filename in os.listdir(path):
 
 print('Saving plots...')
 
-limits_y_inhib = {'M19': 0.00094817215452424166, 'M20': 0.05881844380403458, 'M2': 0.045579084845375248, 'M0': 0.41850331489814846, 'M16': 0.53090054538198905, 'M12': 0.10348765024435345, 'M8': 0.0879971181556196, 'M10': 0.091385099685204613, 'M5': 0.12023234829686442, 'M11': 0.066681715575620762, 'M1': 0.065612535612535605, 'M9': 0.44399181301993929, 'M14': 0.11685871090934383, 'M18': 0.10481751824817517, 'M7': 0.08319148936170212, 'M3': 0.098428750522356875, 'M13': 0.10423963903743316, 'M15': 0.094497716894977157, 'M4': 0.084761904761904761, 'M17': 0.47151162790697676, 'M6': 0.41162041001359995}
-limits_y_steep = {'M19': 0.00083403417818740406, 'M6': 0.46843888454521759, 'M18': 0.11928571428571429, 'M2': 0.043956521739130436, 'M5': 0.40271084337349394, 'M12': 0.095994236311239198, 'M4': 0.11875739644970414, 'M1': 0.10183908045977011, 'M15': 0.10524752475247524, 'M14': 0.4173777101505417, 'M20': 0.11181818181818182, 'M0': 0.52477172544080597, 'M9': 0.5161979526109961, 'M17': 0.08747126436781609, 'M3': 0.10467372568332924, 'M7': 0.099047619047619051, 'M16': 0.597428549883116, 'M10': 0.12266227657572906, 'M8': 0.11538681948424069, 'M11': 0.10111111111111111, 'M13': 0.11090257023311416}
+limits_y_inhib = {'M8': 220.75, 'M1': 22.5, 'M7': 35.0, 'M18': 20.25, 'M2': 434.0, 'M9': 6452.25, 'M6': 5432.0, 'M19': 30.0, 'M4': 56.0, 'M11': 42.5, 'M16': 25622.5, 'M10': 334.0, 'M12': 2112.75, 'M14': 237374.0, 'M3': 427.5, 'M13': 544.25, 'M20': 20.0, 'M17': 24.75, 'M5': 500.0, 'M0': 20349.25, 'M15': 241.25}
+
+limits_y_steep = {'M13': 776.75, 'M7': 39.0, 'M12': 1016.0, 'M18': 20.0, 'M9': 8518.5, 'M4': 55.0, 'M11': 42.0, 'M5': 526.25, 'M16': 29721.0, 'M10': 297.0, 'M14': 314527.25, 'M20': 10.0, 'M19': 32.25, 'M17': 6.0, 'M3': 403.25, 'M1': 22.5, 'M6': 7463.0, 'M0': 24277.5, 'M15': 252.0, 'M2': 421.0, 'M8': 249.0}
 
 # limits_y_steep = {'M13': 0.10090257023311418, 'M5': 0.30271084337349397, 'M12': 0.091902017291066285,
 #                   'M20': 0.12000000000000001, 'M6': 0.36843888454521762, 'M4': 0.10875739644970414,
@@ -86,7 +87,7 @@ for m in motif_count_interval:
             data_to_plot.append([])
             continue
         for idx_v in range(len(motif_count_interval[m][idx])):
-            motif_count_interval[m][idx][idx_v] = motif_count_interval[m][idx][idx_v] / max_val
+            motif_count_interval[m][idx][idx_v] = motif_count_interval[m][idx][idx_v]
         data_to_plot.append(motif_count_interval[m][idx])
         titles.append(str(idx+1))
 
@@ -137,9 +138,9 @@ for m in motif_count_interval:
     plt.tick_params('y', labelsize=20)
     plt.tick_params('x', labelsize=20)
     plt.xlabel(r"\textbf{Intervals before inhibition region}", fontsize=25)
-    plt.ylabel(r"\textbf{Normalized Motif counts}", fontsize=25)
-    # limits_y_steep[m] = third_quartile + 0.3*math.pow(10, int(math.log10(third_quartile)))
-    plt.ylim([0, limits_y_inhib[m]])
+    plt.ylabel(r"\textbf{Motif counts}", fontsize=25)
+    # limits_y_steep[m] = third_quartile + math.pow(10, int(math.log10(third_quartile)))
+    plt.ylim([0, max(limits_y_steep[m], limits_y_inhib[m])])
     plt.grid(True)
     plt.savefig(file_save)
     plt.close()

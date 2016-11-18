@@ -16,7 +16,7 @@ import pickle
 from pylab import *
 
 number_intervals = 21
-path = '../data/centralities/11_14/deg/deg_values/v1/inhib'
+path = '../data/centralities/11_14/frontiers/v1/inhib/frontiers_gt/'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -96,13 +96,13 @@ rcParams['text.latex.preamble'] = [r'\usepackage{sfmath} \boldmath']
 
 # ax.set_title(r'\textbf{Entropy}', fontsize=25)
 #ax.set_title(r'\textbf{Shortest path - Newly appeared nodes by interval}', fontsize=55)
-ax.set_xlabel(r'\textbf{Intervals before inhibition region}', fontsize=25)
-ax.set_ylabel(r'\textbf{Nodal Degree}', fontsize=25)
+ax.set_xlabel(r'\textbf{Intervals before steep region}', fontsize=25)
+ax.set_ylabel(r'\textbf{Degree entropy change}', fontsize=25)
 
 # plt.ylim([-third_quartile - 0.5*math.pow(10, int(math.log10(third_quartile))),
 #           third_quartile + math.pow(10, int(math.log10(third_quartile)))])
 # plt.ylim([0, third_quartile + math.pow(10, int(math.log10(third_quartile)))])
-plt.ylim([1, 3])
+# plt.ylim([-0.2, 0.2])
 plt.tick_params('y', labelsize=20)
 plt.tick_params('x', labelsize=20)
 plt.grid(True)

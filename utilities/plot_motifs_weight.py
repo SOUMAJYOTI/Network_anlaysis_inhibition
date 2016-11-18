@@ -10,7 +10,7 @@ import pickle
 import numpy as np
 import matplotlib.image as image
 
-path = '../data/motifs/motifs_weights/generative/5/08/v2/steep'
+path = '../data/motifs/motifs_weights/generative/5/08/steep'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -31,7 +31,7 @@ for filename in os.listdir(path):
 
     int_reverse = number_intervals - interval
 
-    if interval >= 21 or interval == 0:
+    if interval >= 21:# or interval <= 14:
         continue
     for m in motif_count:
         if m not in motif_count_interval:
@@ -48,9 +48,9 @@ for filename in os.listdir(path):
     # titles.append('I' + str(interval))
 
 print('Saving plots...')
-limits_y_steep = {'M20': 0.86106343302304023, 'M7': 0.64438863366874344, 'M0': 0.52041106724605668, 'M14': 0.82361752469746308, 'M1': 0.68151792239231535, 'M16': 0.61215238307654141, 'M11': 0.71258912196837776, 'M18': 0.75033299173532964, 'M15': 0.63653643105590496, 'M12': 0.57797418489392127, 'M10': 0.85805878338268959, 'M9': 0.64632714590710494, 'M17': 0.82255026770471429, 'M13': 0.7994586223008413, 'M6': 0.73689229271002721, 'M5': 0.91587583606713596, 'M19': 0.56613519121015421, 'M4': 0.76217142193461984, 'M8': 0.74789042769091307, 'M2': 0.67967976102171346, 'M3': 0.82927241552399344}
+limits_y_steep = {'M15': 4.2987502900671553, 'M3': 7.8972724550828648, 'M9': 7.147837355023527, 'M0': 8.0530439432653047, 'M4': 5.9830612244455352, 'M1': 9.4275811043785698, 'M8': 5.7100822887254381, 'M12': 7.0283429888893556, 'M16': 10.050544629696276, 'M13': 2.7189886804605292, 'M14': 5.0850547841377196, 'M20': 9.2170853417721545, 'M19': 20.426930939454287, 'M11': 7.1841775316819589, 'M7': 7.9072539792257421, 'M5': 10.715593272122231, 'M6': 9.0364294988516463, 'M17': 9.8198160389498685, 'M2': 8.0488419817160093, 'M10': 20.855825913361898, 'M18': 6.2422368124944878}
 
-limits_y_inhib = {'M4': 0.6119413589629128, 'M17': 0.86972305093836666, 'M20': 0.97369384484410837, 'M13': 0.41529521258120816, 'M11': 0.66327600104024076, 'M0': 0.76435835449444878, 'M8': 0.55645140340386767, 'M9': 0.59648458010303251, 'M1': 0.88633079899268052, 'M2': 0.70509815145500632, 'M12': 0.71837095061478551, 'M19': 0.95843817663788955, 'M3': 0.7034706865702518, 'M5': 0.94900075671069617, 'M6': 0.79633182558263638, 'M14': 0.65208384262460695, 'M16': 0.87655907654473819, 'M7': 0.6152942772733162, 'M10': 1.0384931884158897, 'M18': 0.6588883159225376, 'M15': 0.51821996407136606}
+limits_y_inhib = {'M1': 10.252633802156769, 'M11': 9.9390502958172302, 'M3': 20.694111073943727, 'M5': 20.059685878677747, 'M9': 10.012212002035568, 'M12': 8.0273688046929319, 'M19': 20.737676430293448, 'M4': 7.1708109037725203, 'M2': 9.1369680065207231, 'M7': 9.1700362028079656, 'M0': 10.107869935993531, 'M14': 7.2909256631621684, 'M8': 8.8893947942588731, 'M10': 21.142869122808531, 'M13': 5.7262114967542956, 'M17': 10.739823384170785, 'M18': 9.2533418209668632, 'M6': 9.4987740902157078, 'M20': 9.7709782769547147, 'M15': 6.0611239954656417, 'M16': 10.755161821126348}
 
 # limits_y_steep = {'M0': 0.37004071345856793, 'M12': 0.46211606187440929, 'M18': 0.05304876869887281,
 #                   'M5': 0.078728494978215019, 'M4': 0.33054649586121532, 'M8': 0.43699005161852106,
@@ -65,6 +65,7 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 rcParams['text.latex.preamble'] = [r'\usepackage{sfmath} \boldmath']
 
+max_val_list = {}
 for m in motif_count_interval:
     print(m)
     data_to_plot = []
@@ -75,12 +76,13 @@ for m in motif_count_interval:
         max_value_interval.append(max(motif_count_interval[m][idx]))
 
     max_val = max(max_value_interval)
+    max_val_list[m] = max_val
     for idx in range(len(motif_count_interval[m])-1):
         if len(motif_count_interval[m][idx]) == 0:
             data_to_plot.append([])
             continue
         for idx_v in range(len(motif_count_interval[m][idx])):
-            motif_count_interval[m][idx][idx_v] = motif_count_interval[m][idx][idx_v] / max_val
+            motif_count_interval[m][idx][idx_v] = motif_count_interval[m][idx][idx_v]
         data_to_plot.append(motif_count_interval[m][idx])
         titles.append(str(idx+1))
 
@@ -120,7 +122,7 @@ for m in motif_count_interval:
     third_quartile = [item.get_ydata()[0] for item in bp['whiskers']]
     third_quartile = max(third_quartile)
 
-    dir_save = '../plots/motif_weights_plots/generative/11_14/v2/steep'
+    dir_save = '../plots/motif_weights_plots/generative/11_14/v1/steep'
     if not os.path.exists(dir_save):
         os.makedirs(dir_save)
     file_save = dir_save + '/' + 'mw_steep_' + str(m) + '.png'
@@ -131,9 +133,9 @@ for m in motif_count_interval:
     plt.tick_params('y', labelsize=25)
     plt.tick_params('x', labelsize=25)
     plt.xlabel(r'\textbf{Intervals before steep region}', fontsize=25)
-    plt.ylabel(r'\textbf{Normalized motif weights}', fontsize=25)
-    # limits_y_steep[m] = third_quartile + 0.2*math.pow(10, int(math.log10(third_quartile)))
-    plt.ylim([0, limits_y_steep[m]])
+    plt.ylabel(r'\textbf{Motif weights}', fontsize=25)
+    # limits_y_steep[m] = third_quartile + math.pow(10, int(math.log10(third_quartile)))
+    plt.ylim([0, max(limits_y_steep[m], limits_y_inhib[m])])
     plt.grid(True)
     plt.savefig(file_save)
     plt.close()
