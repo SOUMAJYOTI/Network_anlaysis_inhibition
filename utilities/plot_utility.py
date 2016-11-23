@@ -16,7 +16,7 @@ import pickle
 from pylab import *
 
 number_intervals = 21
-path = '../data/centralities/11_14/frontiers/v1/inhib/frontiers_gt/'
+path = '../data/centralities/11_14/cc/cc_change/v1/steep/'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -102,7 +102,7 @@ ax.set_ylabel(r'\textbf{Degree entropy change}', fontsize=25)
 # plt.ylim([-third_quartile - 0.5*math.pow(10, int(math.log10(third_quartile))),
 #           third_quartile + math.pow(10, int(math.log10(third_quartile)))])
 # plt.ylim([0, third_quartile + math.pow(10, int(math.log10(third_quartile)))])
-# plt.ylim([-0.2, 0.2])
+plt.ylim([-0.04, 0.04])
 plt.tick_params('y', labelsize=20)
 plt.tick_params('x', labelsize=20)
 plt.grid(True)

@@ -10,7 +10,7 @@ import pickle
 import numpy as np
 import matplotlib.image as image
 
-path = '../data/motifs/motifs_weights/generative/5/08/steep'
+path = '../data/motifs/motifs_weights/generative/5/08/v2/inhib'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -18,7 +18,7 @@ cnt_2 = 0
 motif_count_interval = {}
 titles = []
 
-number_intervals = 21
+number_intervals = 51
 for filename in os.listdir(path):
     # print("Reading file...", filename)
     full_path = path + '/' + filename
@@ -31,11 +31,11 @@ for filename in os.listdir(path):
 
     int_reverse = number_intervals - interval
 
-    if interval >= 21:# or interval <= 14:
+    if interval >= 51:# or interval <= 14:
         continue
     for m in motif_count:
         if m not in motif_count_interval:
-            motif_count_interval[m] = [[] for i in range(21)]
+            motif_count_interval[m] = [[] for i in range(51)]
         list_filtered = []
         for v in motif_count[m]:
             if v == inf:
@@ -43,8 +43,8 @@ for filename in os.listdir(path):
             if v == 0:
                 continue
             # v = math.log(v)
-            list_filtered.append(log(v))
-        motif_count_interval[m][int_reverse-20].extend(list_filtered)
+            list_filtered.append(v)
+        motif_count_interval[m][int_reverse-50].extend(list_filtered)
     # titles.append('I' + str(interval))
 
 print('Saving plots...')
@@ -122,7 +122,7 @@ for m in motif_count_interval:
     third_quartile = [item.get_ydata()[0] for item in bp['whiskers']]
     third_quartile = max(third_quartile)
 
-    dir_save = '../plots/motif_weights_plots/generative/11_14/v1/steep'
+    dir_save = '../plots/motif_weights_plots/generative/11_18/v1/steep'
     if not os.path.exists(dir_save):
         os.makedirs(dir_save)
     file_save = dir_save + '/' + 'mw_steep_' + str(m) + '.png'
@@ -134,8 +134,9 @@ for m in motif_count_interval:
     plt.tick_params('x', labelsize=25)
     plt.xlabel(r'\textbf{Intervals before steep region}', fontsize=25)
     plt.ylabel(r'\textbf{Motif weights}', fontsize=25)
-    # limits_y_steep[m] = third_quartile + math.pow(10, int(math.log10(third_quartile)))
+    limits_y_steep[m] = third_quartile + math.pow(10, int(math.log10(third_quartile)))
     plt.ylim([0, max(limits_y_steep[m], limits_y_inhib[m])])
+    # plt.ylim([0, 5000])
     plt.grid(True)
     plt.savefig(file_save)
     plt.close()
