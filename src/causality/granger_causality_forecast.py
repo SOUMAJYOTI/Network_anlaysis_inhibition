@@ -58,7 +58,7 @@ if __name__ == '__main__':
     dependent_variables = {}
 
     measures = []
-    model_order = 10
+    model_order = 5
     f_list_null = []
     p_list_null = []
 
@@ -81,8 +81,9 @@ if __name__ == '__main__':
 
     for L in range(0, len(range(len(measures))) + 1):
         for subset in itertools.combinations(range(len(measures)), L):
-            if len(subset) > 1 and len(subset) < len(measures):
+            if len(subset) > 1:
                 continue
+            print("Testing feature: ", subset)
             num_measures = len(subset)
             if num_measures == 0:
                 continue
@@ -115,6 +116,7 @@ if __name__ == '__main__':
 
                 ### THIS IS IMPORTANT - CLIPPING THE CASCADE BASED ON STEEP AND INHIBITION REGIONS
                 cascade_df_feat = cascade_df_feat[cascade_df_feat['time'] < pd.to_datetime(inhib_time)]
+                cascade_df_feat = cascade_df_feat[cascade_df_feat['time'] > pd.to_datetime(steep_time)]
 
                 # print(cascade_df_feat)
                 time_series = list(cascade_df_feat['time'])
@@ -167,18 +169,11 @@ if __name__ == '__main__':
                     Y.append(Y_act[idx])
                     time_new.append(time_series[idx])
 
-
                 cascade_ts_df = pd.DataFrame()
                 cascade_ts_df['time_diff'] = Y
                 cascade_ts_df.index = time_new
                 for idx_sub in range(len(subset)):
                     cascade_ts_df[measures[subset[idx_sub]]] = X[idx_sub]
-                # print(cascade_ts_df)
-                # Step 1: Setup the VAR model to set the lag order based on AIC and BIC
-                # try:
-                VAR_model = sta.VAR(cascade_ts_df)
-                VAR_results = VAR_model.fit(maxlags=model_order+1, ic='aic')
-                model_order = VAR_results.k_ar
 
                 Y_diff = []
                 X_diff = [[] for i in range(len(subset))]
@@ -189,8 +184,17 @@ if __name__ == '__main__':
                     for idx_sub in range(len(subset)):
                         X_diff[idx_sub].append(X[idx_sub][idx])
 
-                X = np.asarray(X_diff)
-                Y = np.asarray(Y_diff)
+                X_train = X_diff[0][:len(Y_diff) - 7]
+                Y_train = Y_diff[:len(Y_diff) - 7]
+
+                test_data = X_diff[0][len(Y_diff)-7:len(Y_diff)-2] + Y_diff[len(Y_diff)-7:len(Y_diff)-2] + [1]
+                test_values = Y_diff[len(Y_diff)-1]
+
+                X = np.asarray(X_train)
+                Y = np.asarray(Y_train)
+
+                test_data = np.asarray(test_data)
+                test_values = np.asarray(test_values)
                 #
                 # measures_causality = []
                 # measures_string = ''
@@ -210,19 +214,23 @@ if __name__ == '__main__':
                 # print(cascade_VAR_df)
 
                 # Granger causality regression
-                X = np.asarray(X)
-                Y = np.asarray(Y)
                 Z = np.transpose(np.vstack((Y, X)))
                 try:
-                    granger_results = sts.grangercausalitytests(Z, maxlag=model_order)
+                    granger_results = sts.grangercausalitytests(Z, maxlag=model_order, verbose=False)
                 except:
                     continue
-                for idx_lag in range(1, model_order + 1):
-                    for objects in granger_results[idx_lag]:
-                        # Get the OLS regression results
-                        if type(objects) is list:
-                            results_OLS_granger = objects[1]  # Granger results for the full model
-                            print(results_OLS_granger.summary())
+                if measures_string not in mae_model:
+                    mae_model[measures_string] = []
+                for objects in granger_results[model_order]:
+                    # Get the OLS regression results
+                    if type(objects) is list:
+                        # print("Model order: ", model_order)
+                        results_OLS_granger = objects[1]  # Granger results for the full model
+                        # print(results_OLS_granger.summary())
+                        # x = sm.add_constant(test_data)
+                        estimated_values = results_OLS_granger.predict(test_data)
+                        diff = (abs(estimated_values - test_values)[0])
+                        mae_model[measures_string].append(diff)
                 #
                 # for m_s in range(1, m_steps+1):
                 #     if m_s not in mae_model[measures_string]:
@@ -276,16 +284,8 @@ if __name__ == '__main__':
 
                 cnt_mids += 1
                 print(cnt_mids)
-                if cnt_mids > 0:
-                    break
+                # if cnt_mids > 1:
+                #     break
+    # print(mae_model)
     # print(cnt_mids)
-    # pickle.dump(mae_model, open('..//..//data_files//results_granger//11_23//mae_OLS.pickle', 'wb'))
-    # pickle.dump(statistic_values, open('../../data_files//results_granger//11_23//statistics.pickle', 'wb'))
-    # pickle.dump(critical_values,
-    #             open('../../data_files//results_granger//11_23//critical.pickle', 'wb'))
-    # pickle.dump(p_values,
-    #             open('../../data_files//results_granger//11_23//p_values.pickle', 'wb'))
-    # pickle.dump(granger_cause_count,
-    #             open('../../data_files//results_granger//11_23//cause_count.pickle', 'wb'))
-    #
-
+    pickle.dump(mae_model, open('..//..//data_files//results_granger//11_23//mae_OLS.pickle', 'wb'))
