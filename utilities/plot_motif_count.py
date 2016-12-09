@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import os
 from matplotlib import rc
 
-path = '../data/motifs/motifs_count/5/08/v1/inhib'
+path = '../data/motifs/motifs_count/5/08/v1/steep'
 
 cnt_1 = 0
 cnt_2 = 0
@@ -28,12 +28,12 @@ for filename in os.listdir(path):
 
     int_reverse = number_intervals - interval
 
-    # print(int_reverse)
-    if interval <= 0 or interval > 21:
+    if interval <= 0 or interval > 20:
         continue
+    print(interval, int_reverse)
     for m in motif_count:
         if m not in motif_count_interval:
-            motif_count_interval[m] = [[] for i in range(21)]
+            motif_count_interval[m] = [[] for i in range(20)]
         list_filtered = []
         for v in motif_count[m]:
             if v == inf:
@@ -42,7 +42,7 @@ for filename in os.listdir(path):
                 continue
             # v = math.log(v)
             list_filtered.append(v)
-        motif_count_interval[m][int_reverse-20].extend(list_filtered)
+        motif_count_interval[m][20-int_reverse].extend(list_filtered)
     # titles.append('I' + str(interval))
 
 print('Saving plots...')
@@ -76,20 +76,21 @@ for m in motif_count_interval:
     print(m)
     data_to_plot = []
     max_value_interval = []
-    for idx in range(len(motif_count_interval[m])):
-        if len(motif_count_interval[m][idx]) == 0:
-            continue
-        max_value_interval.append(max(motif_count_interval[m][idx]))
-
-    max_val = max(max_value_interval)
-    for idx in range(len(motif_count_interval[m])):
+    # for idx in range(len(motif_count_interval[m])):
+    #     if len(motif_count_interval[m][idx]) == 0:
+    #         continue
+    #     max_value_interval.append(max(motif_count_interval[m][idx]))
+    #
+    # max_val = max(max_value_interval)
+    # print(motif_count_interval[m])
+    for idx in range(len(motif_count_interval[m])-1,-1,-1):
         if len(motif_count_interval[m][idx]) == 0:
             data_to_plot.append([])
             continue
-        for idx_v in range(len(motif_count_interval[m][idx])):
-            motif_count_interval[m][idx][idx_v] = motif_count_interval[m][idx][idx_v]
+        # for idx_v in range(len(motif_count_interval[m][19-idx])):
+        #     motif_count_interval[m][idx][idx_v] = motif_count_interval[m][19-idx][idx_v]
         data_to_plot.append(motif_count_interval[m][idx])
-        titles.append(str(idx+1))
+        titles.append(str(idx))
 
     # Create the box_plots
     fig = plt.figure(1, figsize=(10, 8))
@@ -127,17 +128,17 @@ for m in motif_count_interval:
     third_quartile = [item.get_ydata()[0] for item in bp['whiskers']]
     third_quartile = max(third_quartile)
 
-    dir_save = '../plots/motif_count_plots/11_14/v1/inhib'
+    dir_save = '../plots/motif_count_plots/12_08/v1/steep'
     if not os.path.exists(dir_save):
         os.makedirs(dir_save)
-    file_save = dir_save + '/' + 'mc_inhib_' + str(m) + '.png'
+    file_save = dir_save + '/' + 'mc_steep_' + str(m) + '.png'
     # plt.ylim([0, third_quartile + math.pow(10, int(math.log10(third_quartile)))])
     # plt.ylim([0, limits_y_steep[m]])
     # major_ticks = np.arange(0, 21, 5)
     # plt.xticks(major_ticks)
     plt.tick_params('y', labelsize=20)
     plt.tick_params('x', labelsize=20)
-    plt.xlabel(r"\textbf{Intervals before inhibition region}", fontsize=25)
+    plt.xlabel(r"\textbf{Intervals before steep region}", fontsize=25)
     plt.ylabel(r"\textbf{Motif counts}", fontsize=25)
     # limits_y_steep[m] = third_quartile + math.pow(10, int(math.log10(third_quartile)))
     plt.ylim([0, max(limits_y_steep[m], limits_y_inhib[m])])
