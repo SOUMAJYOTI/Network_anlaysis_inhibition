@@ -10,7 +10,7 @@ import pickle
 import numpy as np
 import matplotlib.image as image
 
-path = '../data/motifs/frontier_motifs_count/5/frontiers_gt/inhib'
+path = '../data/motifs/frontier_motifs_count/5/frontiers_lt/steep'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -31,11 +31,12 @@ for filename in os.listdir(path):
 
     int_reverse = number_intervals - interval
 
-    if interval > 21 or interval <= 0:
+    if interval >= 21 or interval <= 0:
         continue
+    print(20 - int_reverse)
     for m in motif_count:
         if m not in motif_count_interval:
-            motif_count_interval[m] = [[] for i in range(21)]
+            motif_count_interval[m] = [[] for i in range(20)]
         list_filtered = []
         for v in motif_count[m]:
             if v == inf:
@@ -44,7 +45,7 @@ for filename in os.listdir(path):
                 continue
             # v = math.log(v)
             list_filtered.append(v)
-        motif_count_interval[m][int_reverse-20].extend(list_filtered)
+        motif_count_interval[m][20-int_reverse].extend(list_filtered)
     # titles.append('I' + str(interval))
 
 print('Saving plots...')
@@ -74,12 +75,10 @@ for m in motif_count_interval:
     max_val = max(max_value_interval)
     if max_val == 0:
         continue
-    for idx in range(len(motif_count_interval[m])):
+    for idx in range(len(motif_count_interval[m])-1, -1, -1):
         if len(motif_count_interval[m][idx]) == 0:
             data_to_plot.append([])
             continue
-        for idx_v in range(len(motif_count_interval[m][idx])):
-            motif_count_interval[m][idx][idx_v] = motif_count_interval[m][idx][idx_v]
         data_to_plot.append(motif_count_interval[m][idx])
         titles.append(str(idx+1))
 
@@ -119,10 +118,10 @@ for m in motif_count_interval:
     third_quartile = [item.get_ydata()[0] for item in bp['whiskers']]
     third_quartile = max(third_quartile)
 
-    dir_save = '../plots/temporal_motif_count_plots/11_17/frontiers_gt/v1/inhib'
+    dir_save = '../plots/temporal_motif_count_plots/12_08/frontiers_lt/v1/steep'
     if not os.path.exists(dir_save):
         os.makedirs(dir_save)
-    file_save = dir_save + '/' + 'tmcg_inhib_' + str(m) + '.png'
+    file_save = dir_save + '/' + 'tmcl_steep_' + str(m) + '.png'
     # try:
     #     plt.ylim([0, third_quartile + math.pow(10, int(math.log10(third_quartile)))])
     # except:
@@ -132,11 +131,11 @@ for m in motif_count_interval:
     # plt.xticks(major_ticks)
     plt.tick_params('y', labelsize=25)
     plt.tick_params('x', labelsize=25)
-    plt.xlabel(r'\textbf{Intervals before inhibition region}', fontsize=25)
+    plt.xlabel(r'\textbf{Intervals before steep region}', fontsize=25)
     plt.ylabel(r'\textbf{Motif counts}', fontsize=25)
     try:
         # limits_y_steep[m] = third_quartile + math.pow(10, int(math.log10(third_quartile)))
-        plt.ylim([0, max(limits_y_steep_gt[m], limits_y_inhib_gt[m])])
+        plt.ylim([0, max(limits_y_steep_lt[m], limits_y_inhib_lt[m])])
     except:
         pass
     # plt.ylim([0, limits_y_steep[m]])

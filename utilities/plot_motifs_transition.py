@@ -12,7 +12,7 @@ import datetime
 import pickle
 import math
 
-path = '../data/motifs/motifs_transition/10_05/5/08/steep'
+path = '../data/motifs/motifs_transition/10_05/5/08/inhib'
 number_intervals = 21
 cnt_rec = 0
 
@@ -32,7 +32,7 @@ for filename in os.listdir(path):
         interval = int(filename[-9:-7])
 
     int_reverse = number_intervals - interval
-    if interval>= 21 or interval ==0:
+    if interval> 20 or interval <=0:
         continue
 
     # print(motif_transitions)
@@ -46,8 +46,8 @@ for filename in os.listdir(path):
             for m5 in motif_transitions[m4]:
                 # print(m5)
                 if m5 not in motif_trans_interval[m4]:
-                    motif_trans_interval[m4][m5] = [[] for i in range(21)]
-                motif_trans_interval[m4][m5][int_reverse-20].extend(motif_transitions[m4][m5])
+                    motif_trans_interval[m4][m5] = [[] for i in range(20)]
+                motif_trans_interval[m4][m5][20-int_reverse].extend(motif_transitions[m4][m5])
         #titles.append('I' + str(interval))
     except:
         continue
@@ -63,22 +63,9 @@ rcParams['text.latex.preamble'] = [r'\usepackage{sfmath} \boldmath']
 
 for m4 in motif_trans_interval:
     for m5 in motif_trans_interval[m4]:
-        max_value_interval = []
-        for idx in range(len(motif_trans_interval[m4][m5])):
-            if len(motif_trans_interval[m4][m5][idx]) == 0:
-                continue
-            max_value_interval.append(max(motif_trans_interval[m4][m5][idx]))
 
-        try:
-            max_val = max(max_value_interval)
-        except:
-            continue
-        if max_val == 0:
-            continue
         data_to_plot = []
-        for idx in range(len(motif_trans_interval[m4][m5])):
-            for idx_v in range(len(motif_trans_interval[m4][m5][idx])):
-                motif_trans_interval[m4][m5][idx][idx_v] = motif_trans_interval[m4][m5][idx][idx_v]
+        for idx in range(len(motif_trans_interval[m4][m5])-1, -1, -1):
             data_to_plot.append(motif_trans_interval[m4][m5][idx])
             titles.append(str(idx+1))
 
@@ -121,10 +108,10 @@ for m4 in motif_trans_interval:
         third_quartile = [item.get_ydata()[0] for item in bp['whiskers']]
         third_quartile = max(third_quartile)
 
-        dir_save = '../plots/motif_transition_plots/10_05/steep'
+        dir_save = '../plots/motif_transition_plots/12_08/inhib'
         if not os.path.exists(dir_save):
             os.makedirs(dir_save)
-        file_save = dir_save + '/' + 'mt_steep_' + str(m4) + '_' + str(m5) + '.png'
+        file_save = dir_save + '/' + 'mt_inhib_' + str(m4) + '_' + str(m5) + '.png'
 
         # try:
         #     plt.ylim([0, third_quartile + 0.3 * math.pow(10, int(math.log10(third_quartile)))])
@@ -135,7 +122,7 @@ for m4 in motif_trans_interval:
         # plt.xticks(major_ticks)
         plt.tick_params('y', labelsize=25)
         plt.tick_params('x', labelsize=25)
-        plt.xlabel(r'\textbf{Intervals before steep region}', fontsize=25)
+        plt.xlabel(r'\textbf{Intervals before inhibition region}', fontsize=25)
         plt.ylabel(r'\textbf{Motif transition count}', fontsize=25)
 
         # if m4 not in limits_y_steep:

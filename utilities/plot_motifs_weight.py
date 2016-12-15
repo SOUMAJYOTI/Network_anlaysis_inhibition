@@ -75,7 +75,7 @@ for m in motif_count_interval:
 
     max_val = max(max_value_interval)
     max_val_list[m] = max_val
-    for idx in range(len(motif_count_interval[m])):
+    for idx in range(len(motif_count_interval[m])-1, -1, -1):
         if len(motif_count_interval[m][idx]) == 0:
             data_to_plot.append([])
             continue
@@ -120,7 +120,7 @@ for m in motif_count_interval:
     third_quartile = [item.get_ydata()[0] for item in bp['whiskers']]
     third_quartile = max(third_quartile)
 
-    dir_save = '../plots/motif_weights_plots/generative/12_08/v1/steep'
+    dir_save = '../plots/motif_weights_plots/generative/12_08/v3/steep'
     if not os.path.exists(dir_save):
         os.makedirs(dir_save)
     file_save = dir_save + '/' + 'mw_steep_' + str(m) + '.png'
