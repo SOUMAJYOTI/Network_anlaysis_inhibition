@@ -16,7 +16,7 @@ import pickle
 from pylab import *
 
 number_intervals = 21
-path = '../data/centralities/12_13/cc/cc_values/inhib/'
+path = '../data/centralities/12_13/cc_cumulative/cc_values/steep/'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -102,7 +102,7 @@ ax.set_ylabel(r'\textbf{Clustering coefficients (cumulative)}', fontsize=25)
 # plt.ylim([-third_quartile - 0.5*math.pow(10, int(math.log10(third_quartile))),
 #           third_quartile + math.pow(10, int(math.log10(third_quartile)))])
 # plt.ylim([0, third_quartile + math.pow(10, int(math.log10(third_quartile)))])
-plt.ylim([0.8, 1.05])
+# plt.ylim([0.8, 1.05])
 plt.tick_params('y', labelsize=20)
 plt.tick_params('x', labelsize=20)
 plt.grid(True)
