@@ -16,7 +16,7 @@ import pickle
 from pylab import *
 
 number_intervals = 21
-path = '../data/centralities/12_13/cc_cumulative/cc_values/steep/'
+path = '../data/centralities/12_13/wiener/wiener_values/inhib/'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -28,7 +28,7 @@ for filename in os.listdir(path):
     print("Reading file...", filename)
     full_path = path + '/' + filename
     global_list = pickle.load(open(full_path, 'rb'))
-    print(global_list)
+    # print(global_list)
     for interval in range(1, number_intervals):
         int_reverse = number_intervals - interval
         measure_list = global_list[int_reverse]
@@ -102,7 +102,7 @@ ax.set_ylabel(r'\textbf{Clustering coefficients (cumulative)}', fontsize=25)
 # plt.ylim([-third_quartile - 0.5*math.pow(10, int(math.log10(third_quartile))),
 #           third_quartile + math.pow(10, int(math.log10(third_quartile)))])
 # plt.ylim([0, third_quartile + math.pow(10, int(math.log10(third_quartile)))])
-# plt.ylim([0.8, 1.05])
+plt.ylim([0, 0.0001])
 plt.tick_params('y', labelsize=20)
 plt.tick_params('x', labelsize=20)
 plt.grid(True)
