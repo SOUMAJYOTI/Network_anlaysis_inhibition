@@ -16,7 +16,7 @@ import pickle
 from pylab import *
 
 number_intervals = 21
-path = '../data/centralities/12_13/wiener/wiener_values/inhib/'
+path = '../data/centralities/11_14/entropy/entropy_values/inhib/'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -53,8 +53,8 @@ for filename in os.listdir(path):
 
 #data_to_plot = data_to_plot.reverse()
 
-
-fig = plt.figure(1, figsize=(10, 8))
+hfont = {'fontname': 'Arial'}
+fig = plt.figure(figsize=(12, 8))
 
 # Create an axes instance
 ax = fig.add_subplot(111)
@@ -90,21 +90,26 @@ third_quartile = max(third_quartile)
 first_quartile = [item.get_ydata()[1] for item in bp['whiskers']]
 first_quartile = max(first_quartile)
 
-plt.rc('text', usetex=True)
-plt.rc('font', family='serif')
-rcParams['text.latex.preamble'] = [r'\usepackage{sfmath} \boldmath']
+# plt.rc('text', usetex=True)
+# plt.rc('axes')
+# plt.rc('font', family='arial')
+# rcParams['text.latex.preamble'] = [r'\usepackage{sfmath} \boldmath']
 
+hfont = {'fontname': 'Arial'}
 # ax.set_title(r'\textbf{Entropy}', fontsize=25)
 #ax.set_title(r'\textbf{Shortest path - Newly appeared nodes by interval}', fontsize=55)
-ax.set_xlabel(r'\textbf{Intervals before inhibition region}', fontsize=25)
-ax.set_ylabel(r'\textbf{Clustering coefficients (cumulative)}', fontsize=25)
+plt.xlabel('Intervals before inhibition region', fontsize=40, **hfont)
+plt.ylabel('Degree entropy', fontsize=40, **hfont)
 
 # plt.ylim([-third_quartile - 0.5*math.pow(10, int(math.log10(third_quartile))),
 #           third_quartile + math.pow(10, int(math.log10(third_quartile)))])
 # plt.ylim([0, third_quartile + math.pow(10, int(math.log10(third_quartile)))])
-plt.ylim([0, 0.0001])
-plt.tick_params('y', labelsize=20)
-plt.tick_params('x', labelsize=20)
+
+# plt.xticks(np.arange(0, 100, 20))
+plt.tick_params('y', labelsize=25)
+plt.tick_params('x', labelsize=25)
+plt.ylim([0, 1])
 plt.grid(True)
+plt.subplots_adjust(left=0.15, bottom=0.15)
 # ax.set_xticklabels(titles)
 plt.show()

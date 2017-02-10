@@ -107,231 +107,231 @@ class FormCascadesOrder(object):
 
                     time_cascades.append(x_time[len(x_time)-1])
                     size_cascades.append(len(x_time))
-                   #  for idx in range(len(cascade_set_1)):
-                   #      if cascade_set_2[idx] not in node_rt_time:
-                   #          if idx == 0:
-                   #              rt_time = datetime.datetime.strptime(cascade_rt_time[idx], '%Y-%m-%d %H:%M:%S')
-                   #              d1_ts = time.mktime(rt_time.timetuple())
-                   #              d2_ts = time.mktime(min_time.timetuple())
-                   #              diff = int(int(d1_ts-d2_ts) / 60)
-                   #              node_rt_time[cascade_set_2[idx]] = min_time
-                   #              node_rt_time[cascade_set_1[idx]] = rt_time
-                   #              node_reaction_time.append(diff)
-                   #          elif cascade_set_1[idx] not in node_rt_time and idx != 0:
-                   #              rt_time = datetime.datetime.strptime(cascade_rt_time[idx], '%Y-%m-%d %H:%M:%S')
-                   #              rt_time_prev = datetime.datetime.strptime(cascade_rt_time[idx-1], '%Y-%m-%d %H:%M:%S')
-                   #              d1_ts = time.mktime(rt_time.timetuple())
-                   #              d2_ts = time.mktime(rt_time_prev.timetuple())
-                   #              diff = int(int(d1_ts-d2_ts) / 60)
-                   #              node_rt_time[cascade_set_2[idx]] = rt_time_prev
-                   #              node_rt_time[cascade_set_1[idx]] = rt_time
-                   #              node_reaction_time.append(diff)
-                   #          else:
-                   #              diff = 0
-                   #              node_reaction_time.append(diff)
-                   #      else:
-                   #          orig_time = node_rt_time[cascade_set_2[idx]]
-                   #          rt_time = datetime.datetime.strptime(cascade_rt_time[idx], '%Y-%m-%d %H:%M:%S')
-                   #          d1_ts = time.mktime(rt_time.timetuple())
-                   #          d2_ts = time.mktime(orig_time.timetuple())
-                   #          diff = int(int(d1_ts-d2_ts) / 60)
-                   #          node_rt_time[cascade_set_1[idx]] = rt_time
-                   #          node_reaction_time.append(diff)
-                   #          #print(diff)
-                   #
-                   #  # for i in range(len(node_reaction_time)):
-                   #  #     if node_reaction_time[i] == 0:
-                   #  #         continue
-                   #  #     total_reaction_time.append(node_reaction_time[i])
+                    for idx in range(len(cascade_set_1)):
+                        if cascade_set_2[idx] not in node_rt_time:
+                            if idx == 0:
+                                rt_time = datetime.datetime.strptime(cascade_rt_time[idx], '%Y-%m-%d %H:%M:%S')
+                                d1_ts = time.mktime(rt_time.timetuple())
+                                d2_ts = time.mktime(min_time.timetuple())
+                                diff = int(int(d1_ts-d2_ts) / 60)
+                                node_rt_time[cascade_set_2[idx]] = min_time
+                                node_rt_time[cascade_set_1[idx]] = rt_time
+                                node_reaction_time.append(diff)
+                            elif cascade_set_1[idx] not in node_rt_time and idx != 0:
+                                rt_time = datetime.datetime.strptime(cascade_rt_time[idx], '%Y-%m-%d %H:%M:%S')
+                                rt_time_prev = datetime.datetime.strptime(cascade_rt_time[idx-1], '%Y-%m-%d %H:%M:%S')
+                                d1_ts = time.mktime(rt_time.timetuple())
+                                d2_ts = time.mktime(rt_time_prev.timetuple())
+                                diff = int(int(d1_ts-d2_ts) / 60)
+                                node_rt_time[cascade_set_2[idx]] = rt_time_prev
+                                node_rt_time[cascade_set_1[idx]] = rt_time
+                                node_reaction_time.append(diff)
+                            else:
+                                diff = 0
+                                node_reaction_time.append(diff)
+                        else:
+                            orig_time = node_rt_time[cascade_set_2[idx]]
+                            rt_time = datetime.datetime.strptime(cascade_rt_time[idx], '%Y-%m-%d %H:%M:%S')
+                            d1_ts = time.mktime(rt_time.timetuple())
+                            d2_ts = time.mktime(orig_time.timetuple())
+                            diff = int(int(d1_ts-d2_ts) / 60)
+                            node_rt_time[cascade_set_1[idx]] = rt_time
+                            node_reaction_time.append(diff)
+                            #print(diff)
+
+                    # for i in range(len(node_reaction_time)):
+                    #     if node_reaction_time[i] == 0:
+                    #         continue
+                    #     total_reaction_time.append(node_reaction_time[i])
+                    #
+                    # newpath = 'E:/paper_ASONAM/figures/'
+                    # if not os.path.isdir(newpath):
+                    #     os.makedirs(newpath)
+                    #
+                    # len_rt = len(total_reaction_time)
+                    # in_values = sorted(set(total_reaction_time))
+                    # list_values = list(total_reaction_time)
+                    # in_hist = [list_values.count(x) for x in in_values]
+                    # for i in range(len(in_hist)):
+                    #     in_hist[i] = (in_hist[i] / len_rt)
+
+                   # Group the cascade retweets based on intervals of size 'freq_cd'
+                   #    that is calculated (and hence dynamic)
+                    max_offset = max(x_time)
+                    cumul = []
+                    y_freq = []
+                    node_out_degree = {}
+                    node_out_degree_idx = {}
+                    node_degree_time = []
+                    for idx in range(len(cascade_set_1)):
+                        node_out_degree[cascade_set_1[idx]] = 0
+                        node_out_degree[cascade_set_2[idx]] = 0
+                        node_out_degree_idx[cascade_set_2[idx]] = {}
+                    for idx in range(len(cascade_set_2)):
+                        node_out_degree[cascade_set_2[idx]] += 1
+
+                    for idx in range(len(cascade_set_2)):
+                        node_degree_time.append(node_out_degree[cascade_set_2[idx]])
+
+                    list_pd = []
+                    for idx in range(len(x_time)):
+                        list_pd.append((cascade_set_1[idx], cascade_set_2[idx], time_inst[idx], x_time[idx],
+                                        node_reaction_time[idx]))
+
+                    df_cd_size = pd.DataFrame(list_pd, columns=['target', 'source', 'time',
+                                                                'Offset', 'reaction_time'])
+                    df_cd_size['time'] = pd.to_datetime(df_cd_size['time'])
+                    df_cd_size = df_cd_size[df_cd_size['reaction_time'] != 0]
+                    index_values = list(range(len(list(df_cd_size['target']))))
+                    df_cd_size = df_cd_size.set_index([index_values])
+                    freq_cd = str(5*int(math.log10(int(max_offset)))) + 'Min' # Window size
+                    window_size.append((5*math.log10(int(max_offset))))
+                    df_cd_grouped = df_cd_size.groupby(pd.TimeGrouper(freq=freq_cd, key='time'),
+                                                       as_index=False).apply(lambda x: x['Offset'])
+                    df_cd_size['period'] = df_cd_grouped.index.get_level_values(0)
+                    src_nodes = df_cd_size['source'].tolist()
+                    tgt_nodes = df_cd_size['target'].tolist()
+                    time_nodes = df_cd_size['time'].tolist()
+
+                    # After grouping, calculate the Hawkes intensity
+                    cascade_set_1 = list(df_cd_size['target'])
+                    cascade_set_2 = list(df_cd_size['source'])
+                    x_time = list(df_cd_size['Offset'])
+                    node_reaction_time = list(df_cd_size['reaction_time'])
+                    period_val = list(df_cd_size['period'])
+                    time_actual = list(df_cd_size['time'])
+                    intensity = [0 for i in range(len(cascade_set_1))]
+                    for idx in range(len(cascade_set_1)):
+                        node_out_degree[cascade_set_1[idx]] = 0
+                        node_out_degree[cascade_set_2[idx]] = 0
+                        node_out_degree_idx[cascade_set_2[idx]] = {}
+                    for idx in range(len(cascade_set_1)):
+                        cumul.append(cascade_set_1[idx])
+                        cumul.append(cascade_set_2[idx])
+                        cumul = list(set(cumul))
+                        cumul_len = len(cumul)
+                        #print(cascade_set_3[idx], cumul_len)
+                        y_freq.append(cumul_len)
+                        map_size_time[x_time[idx]] = cumul_len
+                    newpath = 'Cascade_figures/07/' + str(cnt)
+                    if not os.path.isdir(newpath):
+                        os.makedirs(newpath)
+                    x_time_new = []
+                    node_time_new = []
+                    # for idx in range(len(node_degree_time)):
+                    #     if node_degree_time[idx] != 0:
+                    #         node_time_new.append(node_degree_time[idx])
+                    #         x_time_new.append(x_time[idx])
+                    print(len(x_time), len(node_degree_time))
+                    plt.close()
+                    plt.figure(figsize=(20, 12))
+                    [y, x] = zip(*sorted(zip(y_freq, x_time), key=lambda x: x[0]))
+                    plt.rc('text', usetex=True)
+                    plt.rc('axes')
+                    plt.rc('font', family='serif', weight='bold')
+                    plt.rcParams['text.latex.preamble'] = [r'\usepackage{sfmath} \boldmath']
+                    plt.plot(x, y, linewidth=2.5)
+                    plt.grid(True)
+                    plt.xlabel(r'\textbf{Time offset (minutes)}', fontsize=90)
+                    plt.ylabel(r'\textbf{Cascade size}', fontsize=90)
+                    plt.xticks(np.arange(0, max(x), 8000))
+                    #plt.xticks(np.arange(0,40000,5000))
+                    plt.tick_params(axis='x', labelsize=50)
+                    plt.tick_params(axis='y', labelsize=50)
+                    # plt.tick_params('x', labelsize=20)
+                    # plt.tick_params('y', labelsize=20)
+                    #plt.title('Cascade lifecyle')
+                    #plt.savefig(newpath + '/logistic_curve.png')
+                    plt.subplots_adjust(left=0.13, bottom=0.13)
+                    plt.show()
+                    plt.close()
                    #  #
-                   #  # newpath = 'E:/paper_ASONAM/figures/'
-                   #  # if not os.path.isdir(newpath):
-                   #  #     os.makedirs(newpath)
-                   #  #
-                   #  # len_rt = len(total_reaction_time)
-                   #  # in_values = sorted(set(total_reaction_time))
-                   #  # list_values = list(total_reaction_time)
-                   #  # in_hist = [list_values.count(x) for x in in_values]
-                   #  # for i in range(len(in_hist)):
-                   #  #     in_hist[i] = (in_hist[i] / len_rt)
-                   #
-                   # # Group the cascade retweets based on intervals of size 'freq_cd'
-                   # #    that is calculated (and hence dynamic)
-                   #  max_offset = max(x_time)
-                   #  cumul = []
-                   #  y_freq = []
-                   #  node_out_degree = {}
-                   #  node_out_degree_idx = {}
-                   #  node_degree_time = []
-                   #  for idx in range(len(cascade_set_1)):
-                   #      node_out_degree[cascade_set_1[idx]] = 0
-                   #      node_out_degree[cascade_set_2[idx]] = 0
-                   #      node_out_degree_idx[cascade_set_2[idx]] = {}
-                   #  for idx in range(len(cascade_set_2)):
-                   #      node_out_degree[cascade_set_2[idx]] += 1
-                   #
-                   #  for idx in range(len(cascade_set_2)):
-                   #      node_degree_time.append(node_out_degree[cascade_set_2[idx]])
-                   #
-                   #  list_pd = []
-                   #  for idx in range(len(x_time)):
-                   #      list_pd.append((cascade_set_1[idx], cascade_set_2[idx], time_inst[idx], x_time[idx],
-                   #                      node_reaction_time[idx]))
-                   #
-                   #  df_cd_size = pd.DataFrame(list_pd, columns=['target', 'source', 'time',
-                   #                                              'Offset', 'reaction_time'])
-                   #  df_cd_size['time'] = pd.to_datetime(df_cd_size['time'])
-                   #  df_cd_size = df_cd_size[df_cd_size['reaction_time'] != 0]
-                   #  index_values = list(range(len(list(df_cd_size['target']))))
-                   #  df_cd_size = df_cd_size.set_index([index_values])
-                   #  freq_cd = str(5*int(math.log10(int(max_offset)))) + 'Min' # Window size
-                   #  window_size.append((5*math.log10(int(max_offset))))
-                   #  df_cd_grouped = df_cd_size.groupby(pd.TimeGrouper(freq=freq_cd, key='time'),
-                   #                                     as_index=False).apply(lambda x: x['Offset'])
-                   #  df_cd_size['period'] = df_cd_grouped.index.get_level_values(0)
-                   #  src_nodes = df_cd_size['source'].tolist()
-                   #  tgt_nodes = df_cd_size['target'].tolist()
-                   #  time_nodes = df_cd_size['time'].tolist()
-                   #
-                   #  # After grouping, calculate the Hawkes intensity
-                   #  cascade_set_1 = list(df_cd_size['target'])
-                   #  cascade_set_2 = list(df_cd_size['source'])
-                   #  x_time = list(df_cd_size['Offset'])
-                   #  node_reaction_time = list(df_cd_size['reaction_time'])
-                   #  period_val = list(df_cd_size['period'])
-                   #  time_actual = list(df_cd_size['time'])
-                   #  intensity = [0 for i in range(len(cascade_set_1))]
-                   #  for idx in range(len(cascade_set_1)):
-                   #      node_out_degree[cascade_set_1[idx]] = 0
-                   #      node_out_degree[cascade_set_2[idx]] = 0
-                   #      node_out_degree_idx[cascade_set_2[idx]] = {}
-                   #  for idx in range(len(cascade_set_1)):
-                   #      cumul.append(cascade_set_1[idx])
-                   #      cumul.append(cascade_set_2[idx])
-                   #      cumul = list(set(cumul))
-                   #      cumul_len = len(cumul)
-                   #      #print(cascade_set_3[idx], cumul_len)
-                   #      y_freq.append(cumul_len)
-                   #      map_size_time[x_time[idx]] = cumul_len
-                   #  newpath = 'Cascade_figures/07/' + str(cnt)
-                   #  if not os.path.isdir(newpath):
-                   #      os.makedirs(newpath)
-                   #  x_time_new = []
-                   #  node_time_new = []
-                   #  # for idx in range(len(node_degree_time)):
-                   #  #     if node_degree_time[idx] != 0:
-                   #  #         node_time_new.append(node_degree_time[idx])
-                   #  #         x_time_new.append(x_time[idx])
-                   #  print(len(x_time), len(node_degree_time))
-                   #  # plt.close()
-                   #  # plt.figure(figsize=(20, 12))
-                   #  # [y, x] = zip(*sorted(zip(y_freq, x_time), key=lambda x: x[0]))
-                   #  # plt.rc('text', usetex=True)
-                   #  # plt.rc('axes')
-                   #  # plt.rc('font', family='serif', weight='bold')
-                   #  # plt.rcParams['text.latex.preamble'] = [r'\usepackage{sfmath} \boldmath']
-                   #  # plt.plot(x, y, linewidth=2.5)
-                   #  # plt.grid(True)
-                   #  # plt.xlabel(r'\textbf{Time offset (minutes)}', fontsize=90)
-                   #  # plt.ylabel(r'\textbf{Cascade size}', fontsize=90)
-                   #  # plt.xticks(np.arange(0, max(x), 8000))
-                   #  # #plt.xticks(np.arange(0,40000,5000))
-                   #  # plt.tick_params(axis='x', labelsize=50)
-                   #  # plt.tick_params(axis='y', labelsize=50)
-                   #  # # plt.tick_params('x', labelsize=20)
-                   #  # # plt.tick_params('y', labelsize=20)
-                   #  # #plt.title('Cascade lifecyle')
-                   #  # #plt.savefig(newpath + '/logistic_curve.png')
-                   #  # plt.subplots_adjust(left=0.16, bottom=0.16)
-                   #  # plt.show()
-                   #  # plt.close()
-                   # #  #
-                   #  for idx in range(len(cascade_set_2)):
-                   #      node_out_degree[cascade_set_2[idx]] += 1
-                   #      node_out_degree_idx[cascade_set_2[idx]][idx] = node_out_degree[cascade_set_2[idx]]
-                   #
-                   #  print(len(x_time))
-                   #  time_new = []
-                   #  intensity_new = []
-                   #  max_offset = max(x_time)
-                   #  for idx in range(len(cascade_set_1)):
-                   #      idx_set = math.exp(5*x_time[idx]/max_offset)
-                   #      print(idx_set)
-                   #      # if x_time[math.ceil(idx_set)] <= 5000:
-                   #      #     print(x_time[math.ceil(idx_set)])
-                   #      # else:
-                   #      #     break
-                   #
-                   #      if idx_set >= 90:
-                   #          idx_set = 90
-                   #      if idx >= idx_set:
-                   #          #t_st = idx - math.ceil(idx_set)
-                   #          t_st = idx - math.ceil(idx_set)
-                   #          while t_st < idx:
-                   #              #out_degree = node_out_degree_idx[cascade_set_2[t_st]][t_st]
-                   #              out_degree = node_out_degree[cascade_set_2[idx]]
-                   #              #intensity[idx] += ((abs(y_freq[idx]-y_freq[idx-1])/y_freq[idx]) * out_degree * (node_reaction_time[t_st])/1000)
-                   #              #intensity[idx] += (out_degree * (node_reaction_time[t_st])/x_time[idx])
-                   #              intensity[idx] += (out_degree * (node_reaction_time[t_st])/x_time[idx])
-                   #              t_st += 1
-                   #          intensity_new.append(intensity[idx])
-                   #          time_new.append(x_time[idx])
-                   #  df_cd_size['intensity'] = intensity
-                   #  df_cd_size['intensity'] = df_cd_size['intensity'].groupby(df_cd_size['period']).transform('sum')
-                   #  df_cd_size = df_cd_size.drop_duplicates('intensity')
-                   #  time_hawkes = df_cd_size['Offset'].tolist()
-                   #  np_hawkes = list(df_cd_size['intensity'])
-                   #  x_time_new = list(df_cd_size['Offset'])
-                   #  time_actual_new = list(df_cd_size['time'])
-                   #  rng_max = int(len(np_hawkes)/6)
-                   #  print(rng_max)
-                   #
-                   #  plt.close()
-                   #
-                   #  plt.figure(figsize=(20, 12))
-                   #  #[y, x] = zip(*sorted(zip(y_freq, x_time), key=lambda x: x[0]))
-                   #  plt.rc('text', usetex=True)
-                   #  plt.rc('axes')
-                   #  plt.rc('font', family='serif', weight='bold')
-                   #  plt.rcParams['text.latex.preamble'] = [r'\usepackage{sfmath} \boldmath']
-                   #  plt.plot(time_new, intensity_new, linewidth=2.5)
-                   #  plt.grid(True)
-                   #  plt.xlabel(r'\textbf{Time offset (minutes)}', fontsize=90)
-                   #  plt.ylabel(r'\textbf{Hawkes intensity}', fontsize=90)
-                   #  plt.xticks(np.arange(0, max(time_mean), 8000))
-                   #  #plt.xticks(np.arange(0,40000,5000))
-                   #  plt.tick_params(axis='x', labelsize=50)
-                   #  plt.tick_params(axis='y', labelsize=50)
-                   #  # plt.tick_params('x', labelsize=20)
-                   #  # plt.tick_params('y', labelsize=20)
-                   #  #plt.title('Cascade lifecyle')
-                   #  #plt.savefig(newpath + '/logistic_curve.png')
-                   #  plt.subplots_adjust(left=0.16, bottom=0.16)
-                   #  plt.show()
-                   #  plt.close()
-                   #
-                   #
-                   #  plt.figure(figsize=(20, 12))
-                   #  #[y, x] = zip(*sorted(zip(y_freq, x_time), key=lambda x: x[0]))
-                   #  plt.rc('text', usetex=True)
-                   #  plt.rc('axes')
-                   #  plt.rc('font', family='serif', weight='bold')
-                   #  plt.rcParams['text.latex.preamble'] = [r'\usepackage{sfmath} \boldmath']
-                   #  plt.plot(time_mean, mean_hawkes_fall, linewidth=2.5)
-                   #  plt.grid(True)
-                   #  plt.xlabel(r'\textbf{Time offset (minutes)}', fontsize=90)
-                   #  plt.ylabel(r'\textbf{Hawkes intensity}', fontsize=90)
-                   #  plt.xticks(np.arange(0, max(time_mean), 8000))
-                   #  #plt.xticks(np.arange(0,40000,5000))
-                   #  plt.tick_params(axis='x', labelsize=50)
-                   #  plt.tick_params(axis='y', labelsize=50)
-                   #  # plt.tick_params('x', labelsize=20)
-                   #  # plt.tick_params('y', labelsize=20)
-                   #  #plt.title('Cascade lifecyle')
-                   #  #plt.savefig(newpath + '/logistic_curve.png')
-                   #  plt.subplots_adjust(left=0.16, bottom=0.16)
-                   #  plt.show()
-                   #  plt.close()
+                    for idx in range(len(cascade_set_2)):
+                        node_out_degree[cascade_set_2[idx]] += 1
+                        node_out_degree_idx[cascade_set_2[idx]][idx] = node_out_degree[cascade_set_2[idx]]
+
+                    print(len(x_time))
+                    time_new = []
+                    intensity_new = []
+                    max_offset = max(x_time)
+                    for idx in range(len(cascade_set_1)):
+                        idx_set = math.exp(5*x_time[idx]/max_offset)
+                        print(idx_set)
+                        # if x_time[math.ceil(idx_set)] <= 5000:
+                        #     print(x_time[math.ceil(idx_set)])
+                        # else:
+                        #     break
+
+                        if idx_set >= 90:
+                            idx_set = 90
+                        if idx >= idx_set:
+                            #t_st = idx - math.ceil(idx_set)
+                            t_st = idx - math.ceil(idx_set)
+                            while t_st < idx:
+                                #out_degree = node_out_degree_idx[cascade_set_2[t_st]][t_st]
+                                out_degree = node_out_degree[cascade_set_2[idx]]
+                                #intensity[idx] += ((abs(y_freq[idx]-y_freq[idx-1])/y_freq[idx]) * out_degree * (node_reaction_time[t_st])/1000)
+                                #intensity[idx] += (out_degree * (node_reaction_time[t_st])/x_time[idx])
+                                intensity[idx] += (out_degree * (node_reaction_time[t_st])/x_time[idx])
+                                t_st += 1
+                            intensity_new.append(intensity[idx])
+                            time_new.append(x_time[idx])
+                    df_cd_size['intensity'] = intensity
+                    df_cd_size['intensity'] = df_cd_size['intensity'].groupby(df_cd_size['period']).transform('sum')
+                    df_cd_size = df_cd_size.drop_duplicates('intensity')
+                    time_hawkes = df_cd_size['Offset'].tolist()
+                    np_hawkes = list(df_cd_size['intensity'])
+                    x_time_new = list(df_cd_size['Offset'])
+                    time_actual_new = list(df_cd_size['time'])
+                    rng_max = int(len(np_hawkes)/6)
+                    print(rng_max)
+
+                    plt.close()
+
+                    plt.figure(figsize=(20, 12))
+                    #[y, x] = zip(*sorted(zip(y_freq, x_time), key=lambda x: x[0]))
+                    plt.rc('text', usetex=True)
+                    plt.rc('axes')
+                    plt.rc('font', family='serif', weight='bold')
+                    plt.rcParams['text.latex.preamble'] = [r'\usepackage{sfmath} \boldmath']
+                    plt.plot(time_new, intensity_new, linewidth=2.5)
+                    plt.grid(True)
+                    plt.xlabel(r'\textbf{Time offset (minutes)}', fontsize=90)
+                    plt.ylabel(r'\textbf{Hawkes intensity}', fontsize=90)
+                    plt.xticks(np.arange(0, max(time_mean), 8000))
+                    #plt.xticks(np.arange(0,40000,5000))
+                    plt.tick_params(axis='x', labelsize=50)
+                    plt.tick_params(axis='y', labelsize=50)
+                    # plt.tick_params('x', labelsize=20)
+                    # plt.tick_params('y', labelsize=20)
+                    #plt.title('Cascade lifecyle')
+                    #plt.savefig(newpath + '/logistic_curve.png')
+                    plt.subplots_adjust(left=0.16, bottom=0.16)
+                    plt.show()
+                    plt.close()
+
+
+                    plt.figure(figsize=(20, 12))
+                    #[y, x] = zip(*sorted(zip(y_freq, x_time), key=lambda x: x[0]))
+                    plt.rc('text', usetex=True)
+                    plt.rc('axes')
+                    plt.rc('font', family='serif', weight='bold')
+                    plt.rcParams['text.latex.preamble'] = [r'\usepackage{sfmath} \boldmath']
+                    plt.plot(time_mean, mean_hawkes_fall, linewidth=2.5)
+                    plt.grid(True)
+                    plt.xlabel(r'\textbf{Time offset (minutes)}', fontsize=90)
+                    plt.ylabel(r'\textbf{Hawkes intensity}', fontsize=90)
+                    plt.xticks(np.arange(0, max(time_mean), 8000))
+                    #plt.xticks(np.arange(0,40000,5000))
+                    plt.tick_params(axis='x', labelsize=50)
+                    plt.tick_params(axis='y', labelsize=50)
+                    # plt.tick_params('x', labelsize=20)
+                    # plt.tick_params('y', labelsize=20)
+                    #plt.title('Cascade lifecyle')
+                    #plt.savefig(newpath + '/logistic_curve.png')
+                    plt.subplots_adjust(left=0.16, bottom=0.16)
+                    plt.show()
+                    plt.close()
 
 
                     # break
@@ -348,16 +348,16 @@ class FormCascadesOrder(object):
         # pickle.dump(time_diff_points, f)
         # f.close()
 
-        plt.close()
-        plt.figure(1, figsize=(10, 6))
-        n, bins, patches = plt.hist(size_cascades, bins=40, facecolor='b')
-        plt.xlabel('Cascade size', size=35)
-        plt.ylabel('Frequency', size=35)
-        # plt.title('')
-        plt.grid(True)
-        plt.tick_params('y', labelsize=17)
-        plt.tick_params('x', labelsize=17)
-        plt.show()
+        # plt.close()
+        # plt.figure(1, figsize=(10, 6))
+        # n, bins, patches = plt.hist(size_cascades, bins=40, facecolor='b')
+        # plt.xlabel('Cascade size', size=35)
+        # plt.ylabel('Frequency', size=35)
+        # # plt.title('')
+        # plt.grid(True)
+        # plt.tick_params('y', labelsize=17)
+        # plt.tick_params('x', labelsize=17)
+        # plt.show()
         # plt.savefig('Cascade_figures/histograms/cascade_size.png')
 
         # plt.close()

@@ -48,6 +48,7 @@ if __name__ == '__main__':
     measure_file_path = 'F://Inhibition//VAR_causality//data_files//measure_time_series//'
     steep_inhib_times = pickle.load(open('F://Inhibition//VAR_causality//data_files//steep_inhib_times.pickle', 'rb'))
 
+    length_series = []
     dependent_variables = []
     # print(cascade_int_time)
 
@@ -115,8 +116,8 @@ if __name__ == '__main__':
                 cascade_df_feat = cascade_df_feat.sort('time')
 
                 ### THIS IS IMPORTANT - CLIPPING THE CASCADE BASED ON STEEP AND INHIBITION REGIONS
-                cascade_df_feat = cascade_df_feat[cascade_df_feat['time'] < pd.to_datetime(inhib_time)]
-                cascade_df_feat = cascade_df_feat[cascade_df_feat['time'] > pd.to_datetime(steep_time)]
+                cascade_df_feat = cascade_df_feat[cascade_df_feat['time'] < pd.to_datetime(steep_time)]
+                # cascade_df_feat = cascade_df_feat[cascade_df_feat['time'] > pd.to_datetime(steep_time)]
 
                 # print(cascade_df_feat)
                 time_series = list(cascade_df_feat['time'])
@@ -169,11 +170,11 @@ if __name__ == '__main__':
                     Y.append(Y_act[idx])
                     time_new.append(time_series[idx])
 
-                cascade_ts_df = pd.DataFrame()
-                cascade_ts_df['time_diff'] = Y
-                cascade_ts_df.index = time_new
-                for idx_sub in range(len(subset)):
-                    cascade_ts_df[measures[subset[idx_sub]]] = X[idx_sub]
+                # cascade_ts_df = pd.DataFrame()
+                # cascade_ts_df['time_diff'] = Y
+                # cascade_ts_df.index = time_new
+                # for idx_sub in range(len(subset)):
+                #     cascade_ts_df[measures[subset[idx_sub]]] = X[idx_sub]
 
                 Y_diff = []
                 X_diff = [[] for i in range(len(subset))]
@@ -184,78 +185,106 @@ if __name__ == '__main__':
                     for idx_sub in range(len(subset)):
                         X_diff[idx_sub].append(X[idx_sub][idx])
 
-                X_train = X_diff[0][:len(Y_diff) - 7]
-                Y_train = Y_diff[:len(Y_diff) - 7]
+                print(len(Y_diff))
+                if len(Y_diff) <= 15:
+                    continue
 
-                test_data = X_diff[0][len(Y_diff)-7:len(Y_diff)-2] + Y_diff[len(Y_diff)-7:len(Y_diff)-2] + [1]
+                X_train = []
+                test_data = []
+                for f in range(5):
+                    X_train.append(X_diff[0][f:len(Y_diff) - 10 + f])
+                    # X_train.append(Y_diff[f:len(Y_diff) - 10 + f])
+                    test_data.append([X_diff[0][len(Y_diff)-6+f]])
+                    # test_data.append([Y_diff[len(Y_diff) - 6 + f]])
+                    # X_train = [[X_diff[0][:len(Y_diff) - 12]] X_diff[0][:len(Y_diff) - 12] X_diff[0][:len(Y_diff) - 12] X_diff[0][:len(Y_diff) - 12]
+
+
+                X_train.append(np.ones(len(Y_diff)-10))
+                test_data.append([1])
+                Y_train = Y_diff[5:len(Y_diff) - 5]
+
+                # test_data = X_diff[0][len(Y_diff)-7:len(Y_diff)-2] + Y_diff[len(Y_diff)-7:len(Y_diff)-2] + [1]
+                # test_data = X_diff[0][len(Y_diff)-7:len(Y_diff)-2] + [1]
                 test_values = Y_diff[len(Y_diff)-1]
 
                 X = np.asarray(X_train)
                 Y = np.asarray(Y_train)
-
                 test_data = np.asarray(test_data)
                 test_values = np.asarray(test_values)
-                #
-                # measures_causality = []
-                # measures_string = ''
-                # for idx_sub in range(len(subset)):
-                #     measures_causality.append(measures[subset[idx_sub]])
-                #     measures_string += (measures[subset[idx_sub]] + ' + ')
-                # measures_string = measures_string[:len(measures_string) - 3]
-                #
+                X = np.transpose(X)
+                test_data = np.transpose(test_data)
+
+                length_series.append(len(X_train))
+                test_data = np.asarray(test_data)
+                test_values = np.asarray(test_values)
+
+                measures_causality = []
+                measures_string = ''
+                for idx_sub in range(len(subset)):
+                    measures_causality.append(measures[subset[idx_sub]])
+                    measures_string += (measures[subset[idx_sub]] + ' + ')
+                measures_string = measures_string[:len(measures_string) - 3]
+
                 # if measures_string not in mae_model:
                 #     mae_model[measures_string] = {}
                 #
                 # cascade_VAR_df = pd.DataFrame()
                 # cascade_VAR_df['time_diff'] = Y
+                # # print(X)
                 # for idx_sub in range(len(subset)):
                 #     cascade_VAR_df[measures[subset[idx_sub]]] = X[idx_sub, :]
 
                 # print(cascade_VAR_df)
 
-                # Granger causality regression
-                Z = np.transpose(np.vstack((Y, X)))
-                try:
-                    granger_results = sts.grangercausalitytests(Z, maxlag=model_order, verbose=False)
-                except:
-                    continue
+                # # Granger causality regression
+                # Z = np.transpose(np.vstack((Y, X)))
+                # try:
+                #     granger_results = sts.grangercausalitytests(Z, maxlag=model_order, verbose=False)
+                # except:
+                #     continue
                 if measures_string not in mae_model:
                     mae_model[measures_string] = []
-                for objects in granger_results[model_order]:
-                    # Get the OLS regression results
-                    if type(objects) is list:
-                        # print("Model order: ", model_order)
-                        results_OLS_granger = objects[1]  # Granger results for the full model
-                        # print(results_OLS_granger.summary())
-                        # x = sm.add_constant(test_data)
-                        estimated_values = results_OLS_granger.predict(test_data)
-                        diff = (abs(estimated_values - test_values)[0])
-                        mae_model[measures_string].append(diff)
+                # for objects in granger_results[model_order]:
+                #     # Get the OLS regression results
+                #     if type(objects) is list:
+                #         # print("Model order: ", model_order)
+                #         results_OLS_granger = objects[1]  # Granger results for the full model
+                #         # print(results_OLS_granger.summary())
+                #         # x = sm.add_constant(test_data)
+                #         estimated_values = results_OLS_granger.predict(test_data)
+                #         diff = (abs(estimated_values - test_values)[0])
+                #         mae_model[measures_string].append(diff)
                 #
-                # for m_s in range(1, m_steps+1):
-                #     if m_s not in mae_model[measures_string]:
-                #         mae_model[measures_string][m_s] = []
-                #
-                #     x = sm.add_constant(cascade_VAR_df[measures_causality])
-                #     X_train = x.iloc[:len(Y) - m_s]
-                #     Y_train = Y[:len(Y) - m_s]
-                #
-                #     test_data = x.iloc[len(Y)-m_s:]
-                #     test_values = Y[len(Y)-1-m_s:]
-                #     try:
-                #         # print(X_train)
-                #         OLSmodel = sm.OLS(Y_train, X_train)
-                #         res_model = OLSmodel.fit()
-                #         estimated_values = res_model.predict(test_data)
-                #         diff = abs(estimated_values - test_values)
-                #         mae_model[measures_string][m_s].append(diff)
-                #
-                #         # post_label = res.predict(test_data)
-                #         # some issue with the plots....
-                #         # VAR_results.plot()
-                #         # plt.show()
-                #     except ValueError:
-                #         continue
+                # print(measures_causality)
+                # x = sm.add_constant(cascade_VAR_df[measures_causality])
+                # X_train = x.iloc[:len(Y) - 7]
+                # Y_train = Y[1:len(Y) - 7]
+
+                # X_train = sm.add_constant(X_train)
+                # test_data = sm.add_constant(test_data)
+
+                # test_data = x.iloc[len(Y)-7:]
+                # test_values = Y[len(Y)-1-7:]
+
+                # print(X.shape)
+                # print(Y.shape)
+                OLSmodel = sm.OLS(Y, X)
+                try:
+                    # print(X_train)
+                    OLSmodel = sm.OLS(Y, X)
+
+                    res_model = OLSmodel.fit()
+                    estimated_values = res_model.predict(test_data)
+                    diff = abs(estimated_values - test_values)
+                    mae_model[measures_string].append(diff)
+
+                    # print(diff)
+                    # post_label = res.predict(test_data)
+                    # some issue with the plots....
+                    # VAR_results.plot()
+                    # plt.show()
+                except ValueError:
+                    continue
 
                 # # print(cascade_ts_df)
                 # try:
@@ -288,4 +317,5 @@ if __name__ == '__main__':
                 #     break
     # print(mae_model)
     # print(cnt_mids)
-    pickle.dump(mae_model, open('..//..//data_files//results_granger//11_23//mae_OLS.pickle', 'wb'))
+    # pickle.dump(mae_model, open('..//..//data_files//results_granger//11_23//mae_OLS.pickle', 'wb'))
+    pickle.dump(mae_model, open('..//..//data_files//results_granger//01_16//mae_OLS_steep_model_1.pickle', 'wb'))

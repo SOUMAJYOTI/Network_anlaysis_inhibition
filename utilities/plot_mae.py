@@ -9,10 +9,10 @@ import datetime
 import pickle
 
 
-mae_model = pickle.load(open('..//..//data_files//results_granger//11_23//mae_OLS.pickle', 'rb'))
+mae_model = pickle.load(open('..//data//causality//11_23//mae_OLS.pickle', 'rb'))
 
 # map_titles ={'pr': 'clustering coefficient', 'entropy': 'nodal degree', 'cc': 'Pagerank', 'nbr_deg': 'entropy', 'bw': 'betweeneness'}
-map_titles ={'pr': 'Pagerank', 'entropy': 'Nodal Degree', 'cc': 'Clustering coefficient', 'nbr_deg': 'Degree entropy', 'bw': 'betweeneness'}
+map_titles ={'pr': 'Pagerank', 'entropy': 'Nodal Degree', 'cc': 'Clustering coeff.', 'nbr_deg': 'Degree entropy', 'bw': 'betweeneness'}
 
 titles = []
 mae_new = []
@@ -28,25 +28,27 @@ width = 0.35  # the width of the bars
 # print(data_mean)
 ind = np.arange(len(mae_new))  # the x locations for the groups
 print(mae_new)
-fig = plt.figure()
+fig = plt.figure(figsize=(12, 8))
+hfont = {'fontname': 'Arial'}
 ax = fig.add_subplot(111)
+print(ind)
 ## the bars
 rects1 = ax.bar(ind, mae_new, width,
-                color='#C0C0C0',
-                error_kw=dict(elinewidth=2,ecolor='black'))
+                color='#C0C0C0')
 
 # axes and labels
 ax.set_xlim(-width,len(ind)+width)
 # ax.set_ylim(0,45)
-ax.set_ylabel('Mean Absolute error', size=30)
+ax.set_ylabel('Mean Absolute error', size=40, **hfont)
 # ax.set_title('Scores by group and gender')
 xTickMarks = titles
 ax.set_xticks(ind)
 xtickNames = ax.set_xticklabels(xTickMarks)
-plt.setp(xtickNames, rotation=25, fontsize=5)
+plt.setp(xtickNames, rotation=45, fontsize=5)
 plt.grid(True)
-plt.xticks(size=20)
-plt.yticks(size=20)
+plt.xticks(size=25)
+plt.yticks(size=25)
+plt.subplots_adjust(left=0.13, bottom=0.285)
 
 ## add a legend
 # ax.legend( (rects1[0], ('Men', 'Women') )
