@@ -178,7 +178,9 @@ def mcoverage(mid, cnt_mids):
                             # 1. The number of free nodes >= k --> at least k=[1, 4] free nodes
                             # 2. There should be at least one common node with nodes covered
                             number_nodes_free = len(idx.a) - len(list(set(idx.a).intersection(set(nodes_covered))))
-                            if number_nodes_free < 2 or number_nodes_free == 5:
+
+                            """ NUMBER OF NODES FREE - CONDITION """
+                            if number_nodes_free > 3 or number_nodes_free == 0:
                                 continue
 
                             # If an edge is already covered, do not count again
@@ -197,6 +199,7 @@ def mcoverage(mid, cnt_mids):
                             if cnt_maps > 40000:
                                 motifs_count_filtered[ind] = 40001
                                 break
+                            edges_prev = edges_curr
 
                         # Break out of this loop when there is no increase in edges covered
                         # in this iteration
@@ -222,7 +225,7 @@ def mcoverage(mid, cnt_mids):
                 #     # cnt_intervals = 0
 
                 if stop_inhib_flag == 1:
-                    return motifs_edges_coverage
+                    return motifs_edges_coverage, mid
 
                     # motif_weights_patterns_cascade_list = motif_weights_patterns_cascade_list[:cnt_intervals + 1]
                     # return (motif_weights_patterns_steep, motif_weights_patterns_cascade_list)
@@ -287,8 +290,8 @@ if __name__ == '__main__':
     for mid in steep_inhib_times:
         tasks.append( (mid, cnt_mids) )
         cnt_mids += 1
-        if cnt_mids > 1500:
-            break
+        # if cnt_mids > 4:
+        #     break
 
     results = pool.starmap_async(mcoverage, tasks)
     pool.close()
@@ -299,23 +302,25 @@ if __name__ == '__main__':
     count_invalid = 0
     for idx in range(len(motif_data)):
         try:
-            motifs_coverage_values = motif_data[idx]
+            motifs_coverage_values, mid = motif_data[idx]
+            motifs_coverage[mid] = {}
             # print(len(motifs_coverage_values))
             for m in motifs_coverage_values:
-                pat = checkIsomorphism(motif_patterns_list, m)
-                if pat == False:
-                    motif_patterns_list.append(m)
-                    dict_patterns[m] = 'M' + str(count_motifs)
-                    count_motifs += 1
+                # pat = checkIsomorphism(motif_patterns_list, m)
+                # if pat == False:
+                #     motif_patterns_list.append(m)
+                #     dict_patterns[m] = 'M' + str(count_motifs)
+                #     count_motifs += 1
 
-                    motifs_coverage[dict_patterns[m]] = []
-                    motifs_coverage[dict_patterns[m]].append(motifs_coverage_values[m])
-                else:
-                    motifs_coverage[dict_patterns[pat]].append(motifs_coverage_values[m])
+                    # motifs_coverage[mid][dict_patterns[m]] = []
+                motifs_coverage[mid][m] = motifs_coverage_values[m]
+                # print(motifs_coverage_values[m])
+                # else:
+                #     motifs_coverage[dict_patterns[pat]].append(motifs_coverage_values[m])
 
         except:
             count_invalid += 1
 
     print('Invalid: ', count_invalid)
-    pickle.dump(motifs_coverage, open('motifs_coveragt_min_2'
+    pickle.dump(motifs_coverage, open('motifs_coverage_min_1'
                                                   + '.pickle', 'wb'))
