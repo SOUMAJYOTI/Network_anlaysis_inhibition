@@ -90,6 +90,7 @@ def motif_operation(mid):
     last_time = 0
     time_measure_individual = {}
 
+    steep_intervals = 0 # keeps track of the index of  steep interval
     motif_patterns_cascade_list = [{} for i in range(500)]
     print("Cascade of mid: ", mid)
 
@@ -102,6 +103,7 @@ def motif_operation(mid):
                 nodes_interval[cnt_intervals] = new_nodes
                 time_interval[cnt_intervals] = last_time
                 cnt_intervals += 1
+                steep_intervals += 1
                 new_nodes = []
                 new_nodes_count = 0
                 continue
@@ -197,7 +199,8 @@ def motif_operation(mid):
                 #     weighted_edges = [[] for i in range(500)]
 
                 if stop_inhib_flag == 1:
-                    motif_patterns_cascade_list = motif_patterns_cascade_list[:cnt_intervals+1], mid # Add the cascade mid for indexing
+                    # Add the cascade mid for indexing
+                    motif_patterns_cascade_list = motif_patterns_cascade_list[steep_intervals:cnt_intervals+1], mid
                     return (motif_patterns_cascade_list)
 
             cnt_intervals += 1
@@ -269,7 +272,7 @@ if __name__ == '__main__':
     for mid in steep_inhib_times:
         tasks.append( (mid) )
         cnt_mids += 1
-        if cnt_mids > 3:
+        if cnt_mids > 1500:
             break
 
     results = pool.map_async(motif_operation, tasks)
@@ -285,7 +288,7 @@ if __name__ == '__main__':
             # motif_patterns_steep = motif_patterns_steep_id[0]
             # mid = motif_patterns_steep_id[1]
             motif_patterns_inhib = motif_patterns_inhib_id[0]
-            id = motif_patterns_inhib_id[1]
+            mid = motif_patterns_inhib_id[1]
             # cnt_interval_steep = len(motif_patterns_steep)
             cnt_intervals_inhib = len(motif_patterns_inhib)
 
@@ -325,25 +328,7 @@ if __name__ == '__main__':
             for int_prev in range(1, cnt_intervals_inhib+1):
                 interval = cnt_intervals_inhib - int_prev
                 for m in motif_patterns_inhib[interval]:
-                    # flag = 0
-                    #
-                    # pat_global = checkIsomorphism(motif_patterns_global_list_inhib[int_prev], m)
-                    # pat = checkIsomorphism(motif_patterns_list, m)
-                    # if pat == False:
-                    #     motif_patterns_list.append(m)
-                    #     dict_patterns[m] = 'M' + str(count_motifs.value)
-                    #     counter_lock = threading.Lock()
-                    #     with counter_lock:
-                    #         count_motifs.value += 1
-                    # if pat_global == False:
-                    #     motif_count_global_list_inhib[int_prev][m] = []
-                    #     motif_patterns_global_list_inhib[int_prev][m] = motif_patterns_inhib[interval][m]
                     motif_count_global_list_inhib[mid][int_prev][m] = motif_patterns_inhib[interval][m]
-                    # else:
-                    #     motif_patterns_global_list_inhib[int_prev][pat_global] += \
-                    #         motif_patterns_inhib[interval][m]
-                    #     motif_count_global_list_inhib[int_prev][pat_global].append(
-                    #         motif_patterns_inhib[interval][m])
         except:
             count_invalid += 1
 
@@ -351,40 +336,3 @@ if __name__ == '__main__':
 
     # pickle.dump(motif_count_global_list, open('motifs_steep_count.pickle', 'wb'))
     pickle.dump(motif_count_global_list_inhib, open('motifs_inhib_count.pickle', 'wb'))
-
-    # # print(count_motifs.value)
-    # count_motifs_interval_dict = {}
-    # for int_prev in range(100):
-    #     try:
-    #         for m in motif_patterns_global_list[int_prev]:
-    #             output_dir = 'motifs_patterns/5/interval_' + str(int_prev)
-    #             if not os.path.exists(output_dir):
-    #                 os.makedirs(output_dir)
-    #             graph = checkIsomorphism(motif_patterns_list, m)
-    #             str_val = dict_patterns[graph]
-    #             output_string = output_dir + '/' + str_val + '.png'
-    #             pos = gtd.arf_layout(m, max_iter=1000)
-    #             gtd.graph_draw(m, pos=pos, output=output_string)
-    #
-    #         for m in motif_count_global_list[int_prev]:
-    #             graph = checkIsomorphism(motif_patterns_list, m)
-    #             str_val = dict_patterns[graph]
-    #             count_motifs_interval_dict[str_val] = motif_count_global_list[int_prev][m]
-    #         pickle.dump(count_motifs_interval_dict, open('motifs_count/5/v1/steep/count_motifs_interval_'
-    #                                                      + str(int_prev) + '.pickle', 'wb'))
-    #         count_motifs_interval_dict = {}
-    #     except:
-    #         continue
-    #
-    # count_motifs_interval_dict = {}
-    # for int_prev in range(100):
-    #     try:
-    #         for m in motif_count_global_list_inhib[int_prev]:
-    #             graph = checkIsomorphism(motif_patterns_list, m)
-    #             str_val = dict_patterns[graph]
-    #             count_motifs_interval_dict[str_val] = motif_count_global_list_inhib[int_prev][m]
-    #         pickle.dump(count_motifs_interval_dict, open('motifs_count/5/v1/inhib/count_motifs_interval_'
-    #                                                  + str(int_prev) + '.pickle', 'wb'))
-    #         count_motifs_interval_dict = {}
-    #     except:
-    #         continue
