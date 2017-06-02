@@ -108,7 +108,7 @@ for m4 in motif_trans_interval:
         third_quartile = [item.get_ydata()[0] for item in bp['whiskers']]
         third_quartile = max(third_quartile)
 
-        dir_save = '../plots/motif_transition_plots/12_08/inhib'
+        dir_save = '../plots/motif_transition_plots/12_08/v2/inhib'
         if not os.path.exists(dir_save):
             os.makedirs(dir_save)
         file_save = dir_save + '/' + 'mt_inhib_' + str(m4) + '_' + str(m5) + '.png'
@@ -122,7 +122,7 @@ for m4 in motif_trans_interval:
         # plt.xticks(major_ticks)
         plt.tick_params('y', labelsize=25)
         plt.tick_params('x', labelsize=25)
-        plt.xlabel(r'\textbf{Intervals before inhibition region}', fontsize=25)
+        plt.xlabel(r'\textbf{Network subsequences leading to $N_{inhib}$}', fontsize=25)
         plt.ylabel(r'\textbf{Motif transition count}', fontsize=25)
 
         # if m4 not in limits_y_steep:

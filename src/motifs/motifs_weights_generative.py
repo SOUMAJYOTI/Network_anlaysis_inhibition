@@ -186,7 +186,7 @@ def motif_weights_operation(mid, cnt_mids):
                                 num_edges += 1
 
                         try:
-                            w = math.pow(w, (1/num_edges))
+                            w = math.pow(w, (1./num_edges))
                             total_weight += w
                         except:
                             continue

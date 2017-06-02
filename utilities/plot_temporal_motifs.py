@@ -10,7 +10,7 @@ import pickle
 import numpy as np
 import matplotlib.image as image
 
-path = '../data/motifs/frontier_motifs_count/5/frontiers_lt/steep'
+path = '../data/motifs/frontier_motifs_count/5/frontiers_lt/inhib'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -118,10 +118,10 @@ for m in motif_count_interval:
     third_quartile = [item.get_ydata()[0] for item in bp['whiskers']]
     third_quartile = max(third_quartile)
 
-    dir_save = '../plots/temporal_motif_count_plots/12_08/frontiers_lt/v1/steep'
+    dir_save = '../plots/temporal_motif_count_plots/12_08/frontiers_lt/v2/inhib'
     if not os.path.exists(dir_save):
         os.makedirs(dir_save)
-    file_save = dir_save + '/' + 'tmcl_steep_' + str(m) + '.png'
+    file_save = dir_save + '/' + 'tmcl_inhib_' + str(m) + '.png'
     # try:
     #     plt.ylim([0, third_quartile + math.pow(10, int(math.log10(third_quartile)))])
     # except:
@@ -131,7 +131,7 @@ for m in motif_count_interval:
     # plt.xticks(major_ticks)
     plt.tick_params('y', labelsize=25)
     plt.tick_params('x', labelsize=25)
-    plt.xlabel(r'\textbf{Intervals before steep region}', fontsize=25)
+    plt.xlabel(r'\textbf{Network subsequences leading to $N_{inhib}$}', fontsize=25)
     plt.ylabel(r'\textbf{Motif counts}', fontsize=25)
     try:
         # limits_y_steep[m] = third_quartile + math.pow(10, int(math.log10(third_quartile)))

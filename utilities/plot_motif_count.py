@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import os
 from matplotlib import rc
 
-path = '../data/motifs/motifs_count/5/08/v1/steep'
+path = '../data/motifs/motifs_count/5/08/v1/inhib'
 
 cnt_1 = 0
 cnt_2 = 0
@@ -128,17 +128,17 @@ for m in motif_count_interval:
     third_quartile = [item.get_ydata()[0] for item in bp['whiskers']]
     third_quartile = max(third_quartile)
 
-    dir_save = '../plots/motif_count_plots/12_08/v1/steep'
+    dir_save = '../plots/motif_count_plots/12_08/v2/inhib'
     if not os.path.exists(dir_save):
         os.makedirs(dir_save)
-    file_save = dir_save + '/' + 'mc_steep_' + str(m) + '.png'
+    file_save = dir_save + '/' + 'mc_inhib_' + str(m) + '.png'
     # plt.ylim([0, third_quartile + math.pow(10, int(math.log10(third_quartile)))])
     # plt.ylim([0, limits_y_steep[m]])
     # major_ticks = np.arange(0, 21, 5)
     # plt.xticks(major_ticks)
     plt.tick_params('y', labelsize=20)
     plt.tick_params('x', labelsize=20)
-    plt.xlabel(r"\textbf{Intervals before steep region}", fontsize=25)
+    plt.xlabel(r"\textbf{Network subsequences leading to $N_{inhib}$}", fontsize=25)
     plt.ylabel(r"\textbf{Motif counts}", fontsize=25)
     # limits_y_steep[m] = third_quartile + math.pow(10, int(math.log10(third_quartile)))
     plt.ylim([0, max(limits_y_steep[m], limits_y_inhib[m])])

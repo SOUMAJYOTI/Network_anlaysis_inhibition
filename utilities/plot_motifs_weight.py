@@ -10,7 +10,7 @@ import pickle
 import numpy as np
 import matplotlib.image as image
 
-path = '../data/motifs/motifs_weights/generative/5/08/v2/steep'
+path = '../data/motifs/motifs_weights/generative/5/08/v2/inhib'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -47,7 +47,7 @@ for filename in os.listdir(path):
                 continue
             # v = math.log(v)
             list_filtered.append(v)
-        motif_count_interval[m][20-interval].extend(list_filtered)
+        motif_count_interval[m][interval-21].extend(list_filtered)
     # titles.append('I' + str(interval))
 
 print('Saving plots...')
@@ -120,17 +120,17 @@ for m in motif_count_interval:
     third_quartile = [item.get_ydata()[0] for item in bp['whiskers']]
     third_quartile = max(third_quartile)
 
-    dir_save = '../plots/motif_weights_plots/generative/12_08/v3/steep'
+    dir_save = '../plots/motif_weights_plots/generative/12_08/v4/inhib'
     if not os.path.exists(dir_save):
         os.makedirs(dir_save)
-    file_save = dir_save + '/' + 'mw_steep_' + str(m) + '.png'
+    file_save = dir_save + '/' + 'mw_inhib_' + str(m) + '.png'
     # plt.ylim([0, third_quartile + 0.3*math.pow(10, int(math.log10(third_quartile)))])
     # plt.ylim([0, limits_y_steep[m]])
     # major_ticks = np.arange(0, 21, 5)
     # plt.xticks(major_ticks)
     plt.tick_params('y', labelsize=25)
     plt.tick_params('x', labelsize=25)
-    plt.xlabel(r'\textbf{Intervals before steep region}', fontsize=25)
+    plt.xlabel(r'\textbf{Network subsequences leading to $N_{inhib}$}', fontsize=25)
     plt.ylabel(r'\textbf{Motif weights}', fontsize=25)
     # try:
     #     limits_y_steep[m] = third_quartile + math.pow(10, int(math.log10(third_quartile)))
