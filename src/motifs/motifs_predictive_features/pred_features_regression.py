@@ -88,22 +88,28 @@ def motif_X_Y(X_feat, Y_label, interval_start, interval_end, motif_label, mlist)
             X_mid[mid].extend(temp_X)
 
     Y_motif = Y_label[motif_label]
-    # find the median of the coverage for this motif
-    mean_cover = np.median(np.array(list(Y_motif.values())))
+
+    cnt_mids = 0
+    # print(len(Y_motif), motif_label)
     for m in range(len(mlist)):
         mid = mlist[m]
 
+        Y_mid[mid] = 0.
         if mid not in Y_motif:
             continue
-        Y_mid[mid] = 0.
 
+        Y_mid[mid] = Y_motif[mid]
         # print(Y_motif[mid])
-        if Y_motif[mid] > mean_cover:
-            Y_mid[mid] = 1.
+        cnt_mids += 1
+
+    # print(cnt_mids)
 
     for mid in Y_mid:
         if mid not in X_mid:
             continue
+        if Y_mid[mid] == 0.:
+            # continue
+            Y_mid[mid] = np.mean(np.array(list(Y_mid.values())))
         X.append(X_mid[mid])
         Y.append(Y_mid[mid])
 
@@ -118,7 +124,9 @@ if __name__ == "__main__":
     X_trans = pickle.load(open('interim_feat_v1//X_trans.pickle', 'rb'))
     X_temporal = pickle.load(open('interim_feat_v1/X_temporal.pickle', 'rb'))
 
+    # Y_cover = pickle.load(open('interim_feat/Y_num_edges.pickle', 'rb'))
     Y_cover = pickle.load(open('interim_feat/Y_cover_edges.pickle', 'rb'))
+
     dict_patterns = pickle.load(open('dict_patterns.pickle', 'rb'))
 
     # aggregate all the mids
@@ -134,25 +142,20 @@ if __name__ == "__main__":
     mlist = mlist.union(mid_4)
     mlist = list(mlist)
 
-    X_string = ['Motif counts', 'Motif transitions', 'Motif weights', 'Temporal motifs',
-                'All']
-    # X_string = ['Motif transitions',]
-
-    X_total = [[X_counts], [X_trans], [X_weights], [X_temporal], [X_counts, X_trans, X_temporal]] # start with one feature
-    # X_total = [[X_trans]]  # start with one feature
-    avg_precision = {}
-    avg_recall = {}
-    avg_f1 = {}
+    X_string = ['Motif counts', 'Motif transitions', 'Temporal motifs', 'All']
+    X_total = [[X_counts], [X_trans], [X_temporal], [X_counts, X_trans, X_temporal]] # start with one feature
+    # X_total = [[X_weights]]  # start with one feature
     avg_random = {}
 
     motif_pattern = ['M0', 'M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10'
                      , 'M11', 'M12', 'M13', 'M14', 'M15', 'M16', 'M17', 'M18', 'M19', 'M20']
 
     intervals = [2, 4, 6, 8, 10]
-    avg_precision = {}
-    avg_recall = {}
-    avg_f1 = {}
-    avg_random = {}
+    # avg_precision = {}
+    # avg_recall = {}
+    # avg_f1 = {}
+    # avg_random = {}
+    avg_error = {}
     for idx_int in range(len(intervals)):
         interval_start = intervals[idx_int] - 2
         interval_end = intervals[idx_int]
@@ -160,39 +163,28 @@ if __name__ == "__main__":
             X_all = X_total[idx_feat]
             for mp in motif_pattern:
                 print("Interval: ", interval_start, " ,Feature: ", X_string[idx_feat], " , Motif pattern: ", mp)
-                if mp not in avg_precision:
-                    avg_precision[mp] = {}
-                    avg_recall[mp] = {}
-                    avg_f1[mp] = {}
-                    avg_random[mp] = {}
+                if mp not in avg_error:
+                    avg_error[mp] = {}
 
-                if X_string[idx_feat] not in avg_precision[mp]:
-                    avg_precision[mp][X_string[idx_feat]] = {}
-                    avg_recall[mp][X_string[idx_feat]] = {}
-                    avg_f1[mp][X_string[idx_feat]] = {}
-                    avg_random[mp][X_string[idx_feat]] = {}
+                if X_string[idx_feat] not in avg_error[mp]:
+                    avg_error[mp][X_string[idx_feat]] = {}
 
-                avg_p = 0.
-                avg_r = 0.
-                avg_fs = 0.
-                avg_rn = 0
+                avg_er = 0.
 
                 X, Y = motif_X_Y(X_all, Y_cover, interval_start, interval_end, mp, mlist)
                 X = np.array(X)
                 Y = np.array(Y)
 
-                if len(Y) < 500:
-                    avg_precision[mp][X_string[idx_feat]][interval_start] = avg_p / 10.
-                    avg_recall[mp][X_string[idx_feat]][interval_start] = avg_r / 10.
-                    avg_f1[mp][X_string[idx_feat]][interval_start] = avg_fs / 10.
-                    avg_random[mp][X_string[idx_feat]][interval_start] = avg_rn / 10.
+                print(Y.shape, X.shape)
+                if len(Y) < 600:
+                    avg_error[mp][X_string[idx_feat]][interval_start] = avg_er / 10.
                     continue
 
                 train_fold, test_fold = getFolds(Y)
 
-                """ Logistic Regression """
+                """ Linear LASSO Regression """
                 # clf = linear_model.LogisticRegression()
-                clf = ensemble.RandomForestClassifier()
+                # clf = ensemble.RandomForestClassifier()
 
                 for idx_fold in range(len(train_fold)):
                     X_train = X[train_fold[idx_fold]]
@@ -201,8 +193,8 @@ if __name__ == "__main__":
                     X_test = X[test_fold[idx_fold]]
                     Y_test = Y[test_fold[idx_fold]]
 
-                    # print(X_train.shape, X_test.shape)
-                    # print(X_test[Y_test==1.].shape, Y_test.shape)
+                    # print(Y_train)
+                    # print(Y_test)
                     Y_random = []
                     for idx_r in range(X_test.shape[0]):
                         Y_random.append(random.sample([0, 1], 1))
@@ -210,25 +202,26 @@ if __name__ == "__main__":
                     Y_random = np.array(Y_random)
 
                     # print(np.array(X_train).shape)
-                    clf.fit(X_train, Y_train)
-                    Y_predict = clf.predict(X_test)
+                    # clf.fit(X_train, Y_train)
+                    # Y_predict = clf.predict(X_test)
                     # print(Y_predict)
 
-                    print(Y_test, Y_predict)
-                    print(sklearn.metrics.f1_score(Y_test, Y_predict))
+                    alphas = [0.01, 0.02, 0.03, 0.04]
+                    regr = linear_model.Lasso()
+                    scores = [regr.set_params(alpha=alpha).fit(X_train, Y_train).score(X_test, Y_test) for alpha in
+                              alphas]
+                    best_alpha = alphas[scores.index(max(scores))]
+                    regr.alpha = best_alpha
+                    regr.fit(X_train, Y_train)
+                    # print(Y_train)
+                    # print(regr.coef_)
 
-                    avg_p += sklearn.metrics.precision_score(Y_test, Y_predict)
-                    avg_r += sklearn.metrics.recall_score(Y_test, Y_predict)
-                    avg_fs += sklearn.metrics.f1_score(Y_test, Y_predict)
-                    avg_rn += sklearn.metrics.f1_score(Y_test, Y_random)
+                    # print(regr.predict(X_test))
+                    # print(Y_test)
+                    # exit()
+                    # The mean square error
+                    avg_er += (np.mean(np.absolute((regr.predict(X_test) - Y_test))))
 
-                # print(avg_fs/10)
-                avg_precision[mp][X_string[idx_feat]][interval_start] = avg_p/10.
-                avg_recall[mp][X_string[idx_feat]][interval_start] = avg_r/10.
-                avg_f1[mp][X_string[idx_feat]][interval_start] = avg_fs/10.
-                avg_random[mp][X_string[idx_feat]][interval_start] = avg_rn/10.
+                avg_error[mp][X_string[idx_feat]][interval_start] = avg_er / 10.
 
-    # pickle.dump(avg_precision, open('../05/outputs/v5/avg_precision_RF_10.pickle', 'wb'))
-    # pickle.dump(avg_recall, open('../05/outputs/v5/avg_recall_RF_10.pickle', 'wb'))
-    # pickle.dump(avg_f1, open('../05/outputs/v5/avg_f1_RF_10.pickle', 'wb'))
-    # pickle.dump(avg_random, open('../05/avg_random.pickle', 'wb'))
+    pickle.dump(avg_error, open('../05/outputs/v5/avg_reg_error_coverage.pickle', 'wb'))
