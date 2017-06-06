@@ -132,7 +132,7 @@ for m4 in motif_trans_interval:
         # except:
         #     limits_y_steep[m4][m5] = 0
         try:
-            plt.ylim([0, max(limits_y_steep[m4][m5], limits_y_inhib[m4][m5])])
+            plt.ylim([0, limits_y_inhib[m4][m5]])
         except:
             pass
         plt.grid(True)
