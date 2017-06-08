@@ -67,17 +67,27 @@
       <file leaf-file-name="plot_temporal_motifs.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utilities/plot_temporal_motifs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="220">
-              <caret line="20" column="21" selection-start-line="20" selection-start-column="21" selection-end-line="20" selection-end-column="21" />
+            <state relative-caret-position="2596">
+              <caret line="134" column="41" selection-start-line="134" selection-start-column="41" selection-end-line="134" selection-end-column="41" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="plot_motifs_transition.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="plot_motif_count.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/utilities/plot_motif_count.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2706">
+              <caret line="130" column="57" selection-start-line="130" selection-start-column="57" selection-end-line="130" selection-end-column="57" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="plot_motifs_transition.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utilities/plot_motifs_transition.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2510">
+            <state relative-caret-position="611">
               <caret line="134" column="48" selection-start-line="134" selection-start-column="48" selection-end-line="134" selection-end-column="48" />
               <folding />
             </state>
@@ -141,15 +151,15 @@
         <option value="$PROJECT_DIR$/src/motifs/motifs_weights_generative.py" />
         <option value="$PROJECT_DIR$/utilities/plot_motifs_weight.py" />
         <option value="$PROJECT_DIR$/src/motifs/motif_diffusion_effect.py" />
-        <option value="$PROJECT_DIR$/utilities/plot_temporal_motifs.py" />
         <option value="$PROJECT_DIR$/utilities/plot_motifs_transition.py" />
+        <option value="$PROJECT_DIR$/utilities/plot_temporal_motifs.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="-9" />
     <option name="y" value="-9" />
-    <option name="width" value="1932" />
+    <option name="width" value="1938" />
     <option name="height" value="1048" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
@@ -252,7 +262,7 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
-  <component name="RunManager" selected="Python.plot_motifs_transition">
+  <component name="RunManager" selected="Python.plot_temporal_motifs">
     <configuration default="false" name="plot_motifs_transition" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -481,8 +491,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.plot_motifs_transition" />
-        <item index="1" class="java.lang.String" itemvalue="Python.plot_temporal_motifs" />
+        <item index="0" class="java.lang.String" itemvalue="Python.plot_temporal_motifs" />
+        <item index="1" class="java.lang.String" itemvalue="Python.plot_motifs_transition" />
         <item index="2" class="java.lang.String" itemvalue="Python.plot_motifs_weight" />
         <item index="3" class="java.lang.String" itemvalue="Python.plot_motif_count" />
         <item index="4" class="java.lang.String" itemvalue="Python.plot_bars" />
@@ -506,15 +516,15 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-9" y="-9" width="1932" height="1048" extended-state="0" />
+    <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13793103" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1375" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.273326" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2591051" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -872,13 +882,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/plot_motif_count.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
-          <caret line="130" column="57" selection-start-line="130" selection-start-column="57" selection-end-line="130" selection-end-column="57" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/utilities/plot_bars.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1276">
@@ -921,18 +924,26 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/plot_temporal_motifs.py">
+    <entry file="file://$PROJECT_DIR$/utilities/plot_motifs_transition.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="220">
-          <caret line="20" column="21" selection-start-line="20" selection-start-column="21" selection-end-line="20" selection-end-column="21" />
+        <state relative-caret-position="611">
+          <caret line="134" column="48" selection-start-line="134" selection-start-column="48" selection-end-line="134" selection-end-column="48" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/plot_motifs_transition.py">
+    <entry file="file://$PROJECT_DIR$/utilities/plot_temporal_motifs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2510">
-          <caret line="134" column="48" selection-start-line="134" selection-start-column="48" selection-end-line="134" selection-end-column="48" />
+        <state relative-caret-position="2596">
+          <caret line="134" column="41" selection-start-line="134" selection-start-column="41" selection-end-line="134" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utilities/plot_motif_count.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2706">
+          <caret line="130" column="57" selection-start-line="130" selection-start-column="57" selection-end-line="130" selection-end-column="57" />
           <folding />
         </state>
       </provider>

@@ -10,7 +10,7 @@ import pickle
 import numpy as np
 import matplotlib.image as image
 
-path = '../data/motifs/frontier_motifs_count/5/frontiers_lt/inhib'
+path = '../data/motifs/frontier_motifs_count/5/frontiers_gt/inhib'
 cnt_rec = 0
 
 cnt_1 = 0
@@ -118,10 +118,10 @@ for m in motif_count_interval:
     third_quartile = [item.get_ydata()[0] for item in bp['whiskers']]
     third_quartile = max(third_quartile)
 
-    dir_save = '../plots/temporal_motif_count_plots/12_08/frontiers_lt/v2/inhib'
+    dir_save = '../plots/temporal_motif_count_plots/12_08/frontiers_gt/v2/inhib'
     if not os.path.exists(dir_save):
         os.makedirs(dir_save)
-    file_save = dir_save + '/' + 'tmcl_inhib_' + str(m) + '.png'
+    file_save = dir_save + '/' + 'tmcg_inhib_' + str(m) + '.png'
     # try:
     #     plt.ylim([0, third_quartile + math.pow(10, int(math.log10(third_quartile)))])
     # except:
@@ -135,7 +135,7 @@ for m in motif_count_interval:
     plt.ylabel(r'\textbf{Motif counts}', fontsize=25)
     try:
         # limits_y_steep[m] = third_quartile + math.pow(10, int(math.log10(third_quartile)))
-        plt.ylim([0, max(limits_y_steep_lt[m], limits_y_inhib_lt[m])])
+        plt.ylim([0, min([1950, limits_y_inhib_gt[m]])])
     except:
         pass
     # plt.ylim([0, limits_y_steep[m]])
