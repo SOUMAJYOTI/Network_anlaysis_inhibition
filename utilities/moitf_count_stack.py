@@ -59,14 +59,25 @@ for m in motif_count_interval:
         motif_count_mean[m][idx] /= motif_count_sum[idx]
 
 motif_count_stack = {}
+motif_count_all = [[] for _ in range(20)]
 for m in motif_count_mean:
     motif_count_stack[m] = [0. for _ in range(20)]
     for idx in range(len(motif_count_mean[m])):
         motif_count_stack[m][19-idx] = motif_count_mean[m][idx]
+        motif_count_all[19-idx].append( motif_count_mean[m][idx])
 
-stack_1 = motif_count_stack['M16']
-stack_2 = motif_count_stack['M0']
-stack_3 = motif_count_stack['M8']
+# for idx in range(20):
+#     print(np.sum(np.array(motif_count_all[idx])))
+# exit()
+
+# stack_1 = motif_count_all[19]
+# stack_2 = motif_count_all[18]
+# stack_3 = motif_count_all[17]
+
+# print(len(motif_count_all[19]))
+stack_1 = motif_count_stack['M0']
+stack_2 = motif_count_stack['M16']
+stack_3 = motif_count_stack['M6']
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
@@ -79,18 +90,18 @@ mpl.rcParams['text.latex.preamble'] = [
     r'\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
     r'\sansmath'  # <- tricky! -- gotta actually tell tex to use!
 ]
-plt.bar(range(20), stack_1, color='b', label='Motif1')
-plt.bar(range(20), stack_2, color='r', bottom=stack_1, label='')
-plt.bar(range(20), stack_3, color='g', bottom=[i+j for i,j in zip(stack_1, stack_2)]
-        , label='')
+plt.bar(range(20), stack_1, color='#000000', label='Motif1')
+plt.bar(range(20), stack_2, color='#808080', bottom=stack_1, label='Motif2')
+plt.bar(range(20), stack_3, color='#DCDCDC', bottom=[i+j for i,j in zip(stack_1, stack_2)], label='Motif3')
 
-plt.legend(loc='upper right')
-plt.tick_params('y', labelsize=20)
-plt.tick_params('x', labelsize=20)
-plt.xlabel(r"\textbf{Network subsequences leading to $N_{inhib}$}", fontsize=25)
-plt.ylabel(r"\textbf{Percentage of motif counts}", fontsize=25)
+plt.legend(loc='upper right', fontsize=35)
+plt.tick_params('y', labelsize=30)
+plt.tick_params('x', labelsize=30)
+plt.xlabel(r"Network subsequences leading to $N_{inhib}$", fontsize=35)
+plt.ylabel(r"Percentage of motif counts", fontsize=35)
 
 plt.grid(True)
+plt.ylim([0, .25])
 plt.show()
 # print('Saving plots...')
 #
