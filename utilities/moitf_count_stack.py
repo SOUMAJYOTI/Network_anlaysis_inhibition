@@ -90,9 +90,9 @@ mpl.rcParams['text.latex.preamble'] = [
     r'\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
     r'\sansmath'  # <- tricky! -- gotta actually tell tex to use!
 ]
-plt.bar(range(20), stack_1, color='#000000', label='Motif1')
-plt.bar(range(20), stack_2, color='#808080', bottom=stack_1, label='Motif2')
-plt.bar(range(20), stack_3, color='#DCDCDC', bottom=[i+j for i,j in zip(stack_1, stack_2)], label='Motif3')
+plt.bar(range(20), stack_1, color='white',  edgecolor='black',hatch='xx', label='Motif1', linewidth=3 )
+plt.bar(range(20), stack_2,color='white',hatch='o', bottom=stack_1, label='Motif2', linewidth=3)
+plt.bar(range(20), stack_3, color='white',  hatch='||-', bottom=[i+j for i,j in zip(stack_1, stack_2)], label='Motif3', linewidth=3)
 
 plt.legend(loc='upper right', fontsize=35)
 plt.tick_params('y', labelsize=30)
