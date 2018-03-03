@@ -11,13 +11,13 @@ import multiprocessing
 
 # Store the motif counts with the cascade ID for feature analysis and prediction problem !!!
 
-diff_dict_07 = pickle.load(open('diffusion_dict_v1_t07.pickle', 'rb'))
+diff_dict_07 = pickle.load(open('data/diffusion_dict_v1_t07.pickle', 'rb'))
 
 print('Loading diffusion file...')
-diff_file = 'rt_df.csv'
+diff_file = 'data/rt_df.csv'
 df = pd.read_csv(diff_file, names=['index', 'target', 'source', 'rt_time', 'mid', 'post_time', 'isOn'])
 df['mid'] = df['mid'].astype('str')
-steep_inhib_times = pickle.load(open('steep_inhib_times.pickle', 'rb'))
+steep_inhib_times = pickle.load(open('data/steep_inhib_times.pickle', 'rb'))
 
 
 class Stack:
@@ -76,23 +76,26 @@ def motif_operation(mid):
 
     steep_intervals = 0 # keeps track of the index of  steep interval
     zscores_list = [{} for i in range(500)]
+    srp_scores_list = [{} for i in range(500)]
+    motifs_cascade_list = [{} for i in range(500)]
+
     print("Cascade of mid: ", mid)
 
     # start_time = time.time()
     for i, r in cascade_set.iterrows():
         if new_nodes_count > 40 or (i == len(cascade_set['source']) - 1):
             # continue only after the steep interval
-            if stop_steep_flag != 1:
-                # store the attributes of the previous interval
-                nodes_interval[cnt_intervals] = new_nodes
-                time_interval[cnt_intervals] = last_time
-                cnt_intervals += 1
-                steep_intervals += 1
-                new_nodes = []
-                new_nodes_count = 0
-                continue
+            # if stop_steep_flag != 1:
+            #     # store the attributes of the previous interval
+            #     nodes_interval[cnt_intervals] = new_nodes
+            #     time_interval[cnt_intervals] = last_time
+            #     cnt_intervals += 1
+            #     steep_intervals += 1
+            #     new_nodes = []
+            #     new_nodes_count = 0
+            #     continue
 
-            else : #cnt_intervals >= 0:
+            if cnt_intervals >= 0:
                 nodes_interval[cnt_intervals] = new_nodes
 
                 if cnt_intervals == 0:
@@ -161,12 +164,15 @@ def motif_operation(mid):
                 motifs_graph, motifs_count = \
                     gta.motifs(cascade_graph, 5)
 
+                for idx_pat in range(len(motifs_graph)):
+                    motifs_cascade_list[cnt_intervals][motifs_graph[idx_pat]] = motifs_count[idx_pat]
+
                 ''' The following steps substitute the significance method in
                     the graph_tool and that method has some issues with rewiring
                  '''
 
                 mpat_count = {}
-                for idx_rw in range(3):
+                for idx_rw in range(10):
                     cascade_graph_copy = cascade_graph.copy()
                     ret = gta.random_rewire(cascade_graph_copy, "uncorrelated")
                     mt, mcount = gta.motifs(cascade_graph_copy, 5)
@@ -191,13 +197,40 @@ def motif_operation(mid):
                     mean_ran = np.mean(mpat_count[pat])
                     std_ran = np.std(mpat_count[pat])
 
-                    zscore[pat] = (motifs_count[idx_pat] - mean_ran) / std_ran
+                    if std_ran > 0:
+                        zscore[pat] = (motifs_count[idx_pat] - mean_ran) / std_ran
+                    else:
+                        zscore[pat] = 0.
 
-                print(zscore)
                 zscores_list[cnt_intervals] = zscore
-                if stop_inhib_flag == 1:
+
+                ''' Calculate the SRP scores for undirected networks '''
+                srp_score = {}
+                for idx_pat in range(len(motifs_graph)):
+                    pat = checkIsomorphism(gr_list, motifs_graph[idx_pat])
+
+                    if pat == False:
+                        continue
+
+                    mean_ran = np.mean(mpat_count[pat])
+
+                    srp_score[pat] = (motifs_count[idx_pat] - mean_ran) / (motifs_count[idx_pat] + mean_ran + 4)
+
+                srp_denom = np.power(np.sum(np.square(srp_score.values())), 0.5)
+                for pat in srp_score:
+                    srp_score[pat] /= srp_denom
+
+                srp_scores_list[cnt_intervals] = srp_score
+
+                if stop_steep_flag == 1:
                     # Add the cascade mid for indexing
-                    return zscores_list[steep_intervals:cnt_intervals+1], mid
+
+                    print("last: " ,zscores_list[cnt_intervals])
+                    print("last-2: " ,zscores_list[cnt_intervals-2])
+
+                    return motifs_cascade_list, \
+                           zscores_list, srp_scores_list,\
+                           mid
 
             cnt_intervals += 1
             new_nodes = []
@@ -205,8 +238,8 @@ def motif_operation(mid):
 
         rt_time = pd.to_datetime(str(r['rt_time']))
 
-        if stop_inhib_flag == 2:
-            return
+        # if stop_inhib_flag == 2:
+        #     return
         # for the steep and the inhibition point
         if rt_time >= steep_time and stop_steep_flag == 0:
             stop_steep_flag = 1
@@ -245,16 +278,14 @@ if __name__ == '__main__':
     count_motifs = multiprocessing.Value('i', 0)
 
     number_intervals = 500
-
-    motif_patterns_global_list = {}
-    motif_patterns_global_list_inhib = {}
-    motif_count_global_list = {}
-    motif_count_global_list_inhib = {}
+    zscores_global_list_inhib = {}
+    srp_scores_global_list_inhib = {}
+    mcounts_global_list_inhib = {}
 
     motif_patterns_list = []
-    dict_patterns = {}
+    # dict_patterns = {}
 
-    numProcessors = 1
+    numProcessors = 5
     pool = multiprocessing.Pool(numProcessors, initializer=init, initargs=(count_motifs,))
 
     num_cascades = len(steep_inhib_times.keys())
@@ -268,7 +299,7 @@ if __name__ == '__main__':
     for mid in steep_inhib_times:
         tasks.append( (mid) )
         cnt_mids += 1
-        if cnt_mids > 1:
+        if cnt_mids > 2:
             break
 
     results = pool.map_async(motif_operation, tasks)
@@ -278,23 +309,35 @@ if __name__ == '__main__':
     motif_data = results.get()
 
     count_invalid = 0
-    for idx in range(len(motif_data)):
-        try:
-            zscores, mid = motif_data[idx]
-
-            cnt_intervals_inhib = len(zscores)
-
-            motif_patterns_global_list_inhib[mid] = [{} for i in range(number_intervals)]
-            motif_count_global_list_inhib[mid] = [{} for i in range(number_intervals)]
-
-            # inhib intervals operation
-            for int_prev in range(1, cnt_intervals_inhib+1):
-                interval = cnt_intervals_inhib - int_prev
-                for m in motif_patterns_inhib[interval]:
-                    motif_count_global_list_inhib[mid][int_prev][m] = motif_patterns_inhib[interval][m]
-        except:
-            count_invalid += 1
-
-    print('Invalid: ', count_invalid)
-
-    pickle.dump(motif_count_global_list_inhib, open('moitfs_z_scores.pickle', 'wb'))
+    # for idx in range(len(motif_data)):
+    #     try:
+    #         mcounts, zscores, srp_scores, mid = motif_data[idx]
+    #         cnt_intervals_inhib = len(mcounts)
+    #
+    #         zscores_global_list_inhib[mid] = [{} for i in range(number_intervals)]
+    #         srp_scores_global_list_inhib[mid] = [{} for i in range(number_intervals)]
+    #         mcounts_global_list_inhib[mid] = [{} for i in range(number_intervals)]
+    #         # inhib intervals operation
+    #
+    #         ''' Make the patterns global - add them to a dict '''
+    #         for int_prev in range(1, cnt_intervals_inhib+1):
+    #             interval = cnt_intervals_inhib - int_prev
+    #             for m in zscores[interval]:
+    #                 if not checkIsomorphism(motif_patterns_list, m):
+    #                     motif_patterns_list.append(m)
+    #                 zscores_global_list_inhib[mid][int_prev][m] = zscores[interval][m]
+    #
+    #             for m in srp_scores[interval]:
+    #                 srp_scores_global_list_inhib[mid][int_prev][m] = srp_scores[interval][m]
+    #
+    #             for m in mcounts[interval]:
+    #                 mcounts_global_list_inhib[mid][int_prev][m] = mcounts[interval][m]
+    #     except:
+    #         count_invalid += 1
+    #
+    # print('Invalid: ', count_invalid)
+    #
+    # pickle.dump(zscores_global_list_inhib, open('motifs_z_scores_degreeSeq_k4.pickle', 'wb'))
+    # pickle.dump(srp_scores_global_list_inhib, open('motifs_srp_scores_degreeSeq_k4.pickle', 'wb'))
+    # pickle.dump(mcounts_global_list_inhib, open('motif_counts_k4.pickle', 'wb'))
+    # pickle.dump(motif_patterns_list, open('motif_patterns_list_k4.pickle', 'wb'))
