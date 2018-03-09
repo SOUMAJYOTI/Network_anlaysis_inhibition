@@ -1,5 +1,6 @@
 import graph_tool as gt
-import graph_tool.all as gta
+import graph_tool.clustering as gtc
+import graph_tool.generation as gtg
 import graph_tool.stats as gts
 from pylab import *
 from numpy.random import *
@@ -57,8 +58,10 @@ def checkIsomorphism(graph_list, g):
 def motif_operation(mid):
     cascade_set = df[(df['mid'] == str(mid))]
 
-    # print(cascade_set)
-    # print('Cascade: ', cnt_mids, 'of size: ', len_cascade)
+    if (len(cascade_set)/100) > 1200:
+        return [],  mid
+
+    print('Cascade: ', mid, 'of size: ', len(cascade_set))
     steep_time = pd.to_datetime(steep_times[mid])
     inhib_time = pd.to_datetime(inhib_times[mid])
 
@@ -164,13 +167,13 @@ def motif_operation(mid):
                 # FINDING THE MOTIFS IN THE CASCADE GRAPH + DIFFUSION NETWORK
                 start_time = datetime.datetime.now()
                 motifs_graph, motifs_count = \
-                    gta.motifs(cascade_graph, 5)
+                    gtc.motifs(cascade_graph, 5)
                 end_time = datetime.datetime.now()
 
                 # print((end_time - start_time).seconds/60)
                 ''' Pre-emption time constraint '''
-                if ((end_time - start_time).seconds / 60) > 1: # minutes
-                    return [], [], mid
+                if ((end_time - start_time).seconds / 60) > 5: # minutes
+                    return [], mid
 
                 for idx_pat in range(len(motifs_graph)):
                     motifs_cascade_list[cnt_intervals][motifs_graph[idx_pat]] = motifs_count[idx_pat]
@@ -179,44 +182,43 @@ def motif_operation(mid):
                     the graph_tool and that method has some issues with rewiring
                  '''
 
-                mpat_count = {}
-                for idx_rw in range(3):
-                    cascade_graph_copy = cascade_graph.copy()
-                    ret = gta.random_rewire(cascade_graph_copy, "uncorrelated")
-                    mt, mcount = gta.motifs(cascade_graph_copy, 5)
-
-                    for idx_mt in range(len(mt)):
-                        pat = checkIsomorphism(mpat_count.keys(), mt[idx_mt])
-
-                        if pat == False:
-                            mpat_count[mt[idx_mt]] = []
-                            pat = mt[idx_mt]
-
-                        mpat_count[pat].append(mcount[idx_mt])
-
-                gr_list = mpat_count.keys()
-                zscore = {}
-                for idx_pat in range(len(motifs_graph)):
-                    pat = checkIsomorphism(gr_list, motifs_graph[idx_pat])
-
-                    if pat == False:
-                        continue
-
-                    mean_ran = np.mean(mpat_count[pat])
-                    std_ran = np.std(mpat_count[pat])
-
-                    if std_ran > 0:
-                        zscore[pat] = (motifs_count[idx_pat] - mean_ran) / std_ran
-                    else:
-                        zscore[pat] = 0.
-
-                zscores_list[cnt_intervals] = zscore
+                # mpat_count = {}
+                # for idx_rw in range(2):
+                #     cascade_graph_copy = cascade_graph.copy()
+                #     ret = gtg.random_rewire(cascade_graph_copy, "uncorrelated")
+                #     mt, mcount = gtc.motifs(cascade_graph_copy, 5)
+                #
+                #     for idx_mt in range(len(mt)):
+                #         pat = checkIsomorphism(mpat_count.keys(), mt[idx_mt])
+                #
+                #         if pat == False:
+                #             mpat_count[mt[idx_mt]] = []
+                #             pat = mt[idx_mt]
+                #
+                #         mpat_count[pat].append(mcount[idx_mt])
+                #
+                # gr_list = mpat_count.keys()
+                # zscore = {}
+                # for idx_pat in range(len(motifs_graph)):
+                #     pat = checkIsomorphism(gr_list, motifs_graph[idx_pat])
+                #
+                #     if pat == False:
+                #         continue
+                #
+                #     mean_ran = np.mean(mpat_count[pat])
+                #     std_ran = np.std(mpat_count[pat])
+                #
+                #     if std_ran > 0:
+                #         zscore[pat] = (motifs_count[idx_pat] - mean_ran) / std_ran
+                #     else:
+                #         zscore[pat] = 0.
+                #
+                # zscores_list[cnt_intervals] = zscore
 
                 if stop_inhib_flag == 1:
                     # Add the cascade mid for indexing
                     # return motifs_cascade_list[steep_intervals:cnt_intervals+1], mid
-                    return motifs_cascade_list[steep_intervals:cnt_intervals+1], \
-                           zscores_list[steep_intervals:cnt_intervals+1], mid
+                    return motifs_cascade_list[steep_intervals:cnt_intervals+1],  mid
 
             cnt_intervals += 1
             new_nodes = []
@@ -289,8 +291,8 @@ if __name__ == '__main__':
     for mid in steep_times:
         tasks.append( (mid) )
         cnt_mids += 1
-        if cnt_mids > 400:
-            break
+        # if cnt_mids > 20:
+        #     break
 
     results = pool.map_async(motif_operation, tasks)
     pool.close()
@@ -301,7 +303,7 @@ if __name__ == '__main__':
     count_invalid = 0
     for idx in range(len(motif_data)):
         try:
-            mcounts, zscores,  mid = motif_data[idx]\
+            mcounts,  mid = motif_data[idx]
 
             ''' Condition for pre-emption because of time limits'''
             if len(mcounts) == 0:
@@ -315,10 +317,10 @@ if __name__ == '__main__':
             ''' Make the patterns global - add them to a dict '''
             for int_prev in range(1, cnt_intervals_inhib+1):
                 interval = cnt_intervals_inhib - int_prev
-                for m in zscores[interval]:
-                    if not checkIsomorphism(motif_patterns_list, m):
-                        motif_patterns_list.append(m)
-                    zscores_global_list_inhib[mid][int_prev][m] = zscores[interval][m]
+                # for m in zscores[interval]:
+                #     if not checkIsomorphism(motif_patterns_list, m):
+                #         motif_patterns_list.append(m)
+                #     zscores_global_list_inhib[mid][int_prev][m] = zscores[interval][m]
 
                 for m in mcounts[interval]:
                     mcounts_global_list_inhib[mid][int_prev][m] = mcounts[interval][m]
@@ -327,6 +329,8 @@ if __name__ == '__main__':
 
     print('Invalid: ', count_invalid)
 
-    pickle.dump(zscores_global_list_inhib, open('data/motifs_z_scores_degreeSeq_k5_flixster.pickle', 'wb'))
-    pickle.dump(mcounts_global_list_inhib, open('data/motif_counts_k5_flixster.pickle', 'wb'))
-    pickle.dump(motif_patterns_list, open('data/motif_patterns_flixster.pickle', 'wb'))
+    # pickle.dump(zscores_global_list_inhib, open('data/motifs_z_scores_degreeSeq_k5_flixster.pickle', 'wb'))
+    pickle.dump(mcounts_global_list_inhib, open('data/motif_counts_k5_flixster_v1.pickle', 'wb'))
+    # pickle.dump(motif_patterns_list, open('data/motif_patterns_flixster.pickle', 'wb'))
+
+

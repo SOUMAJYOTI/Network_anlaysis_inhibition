@@ -166,9 +166,9 @@ def motif_operation(mid):
                  '''
 
                 mpat_count = {}
-                for idx_rw in range(3):
+                for idx_rw in range(10):
                     cascade_graph_copy = cascade_graph.copy()
-                    ret = gta.random_rewire(cascade_graph_copy, "uncorrelated")
+                    ret = gta.random_rewire(cascade_graph_copy, "erdos")
                     mt, mcount = gta.motifs(cascade_graph_copy, 5)
 
                     for idx_mt in range(len(mt)):
@@ -191,9 +191,11 @@ def motif_operation(mid):
                     mean_ran = np.mean(mpat_count[pat])
                     std_ran = np.std(mpat_count[pat])
 
-                    zscore[pat] = (motifs_count[idx_pat] - mean_ran) / std_ran
+                    if std_ran > 0:
+                        zscore[pat] = (motifs_count[idx_pat] - mean_ran) / std_ran
+                    else:
+                        zscore[pat] = 0.
 
-                print(zscore)
                 zscores_list[cnt_intervals] = zscore
                 if stop_inhib_flag == 1:
                     # Add the cascade mid for indexing
@@ -245,16 +247,12 @@ if __name__ == '__main__':
     count_motifs = multiprocessing.Value('i', 0)
 
     number_intervals = 500
+    zscores_global_list_inhib = {}
 
-    motif_patterns_global_list = {}
-    motif_patterns_global_list_inhib = {}
-    motif_count_global_list = {}
-    motif_count_global_list_inhib = {}
+    # motif_patterns_list = []
+    # dict_patterns = {}
 
-    motif_patterns_list = []
-    dict_patterns = {}
-
-    numProcessors = 1
+    numProcessors = 5
     pool = multiprocessing.Pool(numProcessors, initializer=init, initargs=(count_motifs,))
 
     num_cascades = len(steep_inhib_times.keys())
@@ -268,7 +266,7 @@ if __name__ == '__main__':
     for mid in steep_inhib_times:
         tasks.append( (mid) )
         cnt_mids += 1
-        if cnt_mids > 1:
+        if cnt_mids > 300:
             break
 
     results = pool.map_async(motif_operation, tasks)
@@ -281,20 +279,22 @@ if __name__ == '__main__':
     for idx in range(len(motif_data)):
         try:
             zscores, mid = motif_data[idx]
-
             cnt_intervals_inhib = len(zscores)
 
-            motif_patterns_global_list_inhib[mid] = [{} for i in range(number_intervals)]
-            motif_count_global_list_inhib[mid] = [{} for i in range(number_intervals)]
+            zscores_global_list_inhib[mid] = [{} for i in range(number_intervals)]
 
             # inhib intervals operation
+
+            ''' Make the patterns global - add them to a dict '''
             for int_prev in range(1, cnt_intervals_inhib+1):
                 interval = cnt_intervals_inhib - int_prev
-                for m in motif_patterns_inhib[interval]:
-                    motif_count_global_list_inhib[mid][int_prev][m] = motif_patterns_inhib[interval][m]
+                for m in zscores[interval]:
+                    # if not checkIsomorphism(motif_patterns_list, m):
+                    #     motif_patterns_list.append(m)
+                    zscores_global_list_inhib[mid][int_prev][m] = zscores[interval][m]
         except:
             count_invalid += 1
 
     print('Invalid: ', count_invalid)
 
-    pickle.dump(motif_count_global_list_inhib, open('moitfs_z_scores.pickle', 'wb'))
+    pickle.dump(zscores_global_list_inhib, open('motifs_z_scores_erdos_k5.pickle', 'wb'))
