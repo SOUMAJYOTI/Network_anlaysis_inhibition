@@ -4,7 +4,7 @@ import pickle
 import matplotlib.pyplot as plt
 import datetime
 from dateutil.relativedelta import relativedelta
-
+import networkx as nx
 
 
 def create_cascades():
@@ -150,7 +150,7 @@ def create_cascades():
 
                 diff = fut_time_str - cur_time_str
 
-                if diff.days > 21:
+                if diff.days > 14:
                     break
 
                 ''' Find the nodes which are friends - connect them'''
@@ -176,7 +176,7 @@ def create_cascades():
     cascade_df['post_time'] = postTimeList
     cascade_df['isOn'] = isOnList
 
-    pickle.dump(cascade_df, open('cascade_df_06-08_v1+.pickle', 'wb'))
+    pickle.dump(cascade_df, open('cascade_df_06-08_v2+.pickle', 'wb'))
 
 
 def read_cascades():
@@ -185,8 +185,64 @@ def read_cascades():
     :return:
     '''
 
+    print("Reading the cascades file...")
     cascades_df = pickle.load(open('../flixster_process/data/cascade_df_06-08_v1+.pickle', 'rb'))
     print(cascades_df[:10])
+    #
+    # num_movies = len(list(set(cascades_df['mid'])))
+    # print("the total number of cascades:", num_movies)
+    # with open('movie_metadata_2006_2008.txt', 'w') as fw:
+    #     fw.write("Number of movies in data: %d" % num_movies)
+
+
+    ''' Plot the histograms of cascade lifetimes and cascade sizes '''
+
+    ''' CASCADE TEMPORAL STATS '''
+    # movie_df['date'] = pd.to_datetime(movie_df['date'])
+    movie_id_list = list(set(cascades_df['mid']))
+    time_diff_list = []
+    min_time = 0
+    max_time = 0
+
+    for mid in movie_id_list:
+        print(mid)
+        movie_cascade = cascades_df[cascades_df['mid'] == mid]
+
+        # Temporally order the movie ratings
+        movie_cascade = movie_cascade.sort('rt_time')
+
+        first_time = movie_cascade.iloc[0]['rt_time']
+        last_time = movie_cascade.iloc[len(movie_cascade) - 1]['rt_time']
+
+        if min_time == 0:
+            min_time = first_time
+            max_time = last_time
+        else:
+            if first_time < min_time:
+                min_time = first_time
+            if last_time > max_time:
+                max_time = last_time
+
+        first_time = datetime.datetime.strptime(first_time, '%Y-%m-%d')
+        last_time = datetime.datetime.strptime(last_time, '%Y-%m-%d')
+        diff = last_time - first_time
+
+        time_diff_list.append(diff.days)  # in days
+
+    # CODE FOR HISTOGRAM PLOT OF MOVIE CASCADE LENGTHS
+    plt.close()
+    plt.figure(figsize=(12, 8))
+    n, bins, patches = plt.hist(time_diff_list, bins=20, facecolor='b')
+    plt.xlabel('Cascade lifetime (days)', size=40, )
+    plt.ylabel('Frequency', size=40, )
+    plt.title('')
+    plt.tick_params(axis='x', labelsize=25)
+    plt.tick_params(axis='y', labelsize=25)
+    plt.subplots_adjust(left=0.16, bottom=0.16)
+    plt.grid(True)
+    plt.savefig('Cascade_life_hist.png')
+    plt.close()
+
 
     # print('The number of cascades are: ', len(list(set(cascades_df['mid']))))
 
@@ -200,6 +256,35 @@ def create_network_cascades():
 
     cascades_df = pickle.load(open('../flixster_process/data/cascade_df_06-08_v1+.pickle', 'rb'))
 
+
+def social_network_stats(sn_dict):
+    '''
+    Compute the stats for the social network dict
+    :return:
+    '''
+    print("Reading sn_dict file...")
+    edges = []
+    for uid in sn_dict:
+        for nbrs in sn_dict[uid]:
+            edges.append((uid, nbrs))
+
+    g = nx.Graph()
+    g.add_edges_from(edges)
+
+    deg_sum = 0
+
+    for n in g.nodes():
+        deg_sum += g.degree(n)
+
+    print("Number of edges: ", g.number_of_edges())
+    print("Average degree: ", deg_sum/g.number_of_nodes())
+    with open('flixster_sn_dict.txt', 'w') as fw:
+        fw.write("Number of edges: %d \n" % g.number_of_edges())
+        fw.write("Number of nodes: %d \n" % g.number_of_nodes())
+        fw.write("Average degree: %f \n" % (deg_sum/g.number_of_nodes()))
+
+
+
 def main():
     '''
 
@@ -207,7 +292,8 @@ def main():
     '''
 
     ''' This is the social network data file processing  '''
-    # sn_dict = create_sn_dict()
+    # sn_dict = pickle.load(open('data/flixster_sn_dict.pickle', 'rb'))
+    # social_network_stats(sn_dict)
 
     ''' This is for preprocessing the cascade files '''
     # movie_stats_df = cascade_stats()
@@ -215,6 +301,7 @@ def main():
 
     ''' This is for creating the cascades file '''
     # create_cascades()
+
 
     ''' This is for testing the cascades file '''
     read_cascades()
